@@ -14,63 +14,34 @@ import java.util.List;
 public class Album implements Serializable {
 
     private int album_id;
-    private List<Music> setlist;
-    private List<Critics> critics;
-    private List<Genre> genres;
-    private List<Artist> producers;
-    private Artist artist;
     private String title;
     private String launch;
+    private int duration;
+    private int track_number;
 
-    public Album(int id, Artist artist, String title, String launch) {
+    public Album(int id, Artist artist, String title, int duration, String launch, int trackNumber) {
         this.album_id = id;
-        this.setlist = new ArrayList<>();
-        this.critics = new ArrayList<>();
-        this.genres = new ArrayList<>();
-        this.producers = new ArrayList<>();
-        this.artist = artist;
+        this.duration = duration;
         this.title = title;
         this.launch = launch;
+        this.track_number= trackNumber;
     }
 
-    public void addProducer(Artist artist) {
-        this.producers.add(artist);
-    }
-
-    public void addGenres(Genre genre) {
-        this.genres.add(genre);
-    }
-
-    public void addMusic(Music music) {
-        this.setlist.add(music);
-    }
-
-    public void addCritic(Critics critics) {
-        this.critics.add(critics);
-    }
-
-    public List<Music> getSetlist() {
-        return setlist;
-    }
-
-    public List<Critics> getCritics() {
-        return critics;
-    }
-
-    public List<Genre> getGenres() {
-        return genres;
-    }
-
-    public List<Artist> getProducers() {
-        return producers;
-    }
-
-    public Artist getArtist() {
-        return artist;
-    }
 
     public String getTitle() {
         return title;
+    }
+
+    public int getAlbum_id() {
+        return album_id;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public int getTrackNumber() {
+        return track_number;
     }
 
     public String getLaunch() {

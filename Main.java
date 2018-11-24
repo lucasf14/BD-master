@@ -1,3 +1,5 @@
+import jdk.swing.interop.SwingInterOpUtils;
+
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
@@ -31,8 +33,7 @@ public class Main {
         }
 
         login();
-        insert_artist();
-        //insert_music();
+        searchArtist("J");
 
     }
 
@@ -68,6 +69,99 @@ public class Main {
 
     }
 
+    public static void searchMusic(String titleSearch) throws SQLException {
+        int select;
+        Music music;
+        ArrayList<Music> musicList = new ArrayList<>();
+        String query = "select * from \"Musics\" WHERE title LIKE '%"+titleSearch+"%';";
+        ResultSet res = stmt.executeQuery(query);
+        while(res.next()) {
+            music = new Music(res.getInt(1), res.getString(2), res.getInt(3), res.getString(4), res.getInt(5), res.getString(6), res.getString(7), res.getString(8));
+            musicList.add(music);
+        }
+        if (musicList.isEmpty()){
+            System.out.println("No results were found.");
+        }
+        else{
+            System.out.println("Results found: ");
+            for(int i = 0; i<musicList.size(); i++) {
+                System.out.println("" + (i+1) + ": " + musicList.get(i).getTitle() + " by "+musicList.get(i).getArtist());
+            }
+        }
+        System.out.print("Pick a song: ");
+        select = scan.nextInt();
+        select -= 1;
+        System.out.println("SONG INFORMATION: ");
+        System.out.println("TITLE: "+musicList.get(select).getTitle());
+        System.out.println("DURATION: "+musicList.get(select).getTime()+"seconds");
+        System.out.println("LAUNCH DATE: "+musicList.get(select).getLaunch_date());
+        System.out.println("UPVOTES: "+musicList.get(select).getUpvotes());
+        System.out.println("LYRICS: "+musicList.get(select).getLyrics());
+        System.out.println("FORMAT: "+musicList.get(select).getFormat());
+        System.out.println("ARTIST: "+musicList.get(select).getArtist());
+    }
+/*
+    public static void searchAlbum(String albumSearch) throws SQLException {
+        int select;
+        Album album;
+        ArrayList<Album> albumList = new ArrayList<>();
+        String query = "select * from \"Albums\" WHERE title LIKE '%"+albumSearch+"%';";
+        ResultSet res = stmt.executeQuery(query);
+        while(res.next()) {
+            album = new Album(res.getInt(1), res.getString(2), res.getString(3), res.getInt(4), res.getString(5), res.getInt(6));
+            albumList.add(album);
+        }
+        if (albumList.isEmpty()){
+            System.out.println("No results were found.");
+        }
+        else{
+            System.out.println("Results found: ");
+            for(int i = 0; i<albumList.size(); i++) {
+                System.out.println("" + (i+1) + ": " + albumList.get(i).getTitle() + " by "+albumList.get(i).getArtist());
+            }
+        }
+        System.out.print("Pick an album: ");
+        select = scan.nextInt();
+        select -= 1;
+        System.out.println("ALBUM INFORMATION: ");
+        System.out.println("TITLE: "+albumList.get(select).getTitle());
+        System.out.println("DURATION: "+albumList.get(select).getDuration()+"seconds");
+        System.out.println("LAUNCH DATE: "+albumList.get(select).getLaunch());
+        System.out.println("NUMBER OF TRACKS: "+albumList.get(select).getTrackNumber());
+        System.out.println("ARTIST: "+albumList.get(select).getArtist());
+    }
+
+*/
+    public static void searchArtist(String artistSearch) throws SQLException {
+        int select;
+        Artist artist;
+        ArrayList<Artist> artistList = new ArrayList<>();
+        String query = "select * from \"Artists\" WHERE artistic_name LIKE '%"+artistSearch+"%';";
+        ResultSet res = stmt.executeQuery(query);
+        while(res.next()) {
+            artist = new Artist(res.getString(1), res.getString(2), res.getString(3), res.getInt(4), res.getString(5), res.getString(6));
+            artistList.add(artist);
+        }
+        if (artistList.isEmpty()){
+            System.out.println("No results were found.");
+        }
+        else{
+            System.out.println("Results found: ");
+            for(int i = 0; i<artistList.size(); i++) {
+                System.out.println("" + (i+1) + ": " + artistList.get(i).getArtistic_name());
+            }
+        }
+        System.out.print("Pick an artist: ");
+        select = scan.nextInt();
+        select -= 1;
+        System.out.println("ARTIST INFORMATION: ");
+        System.out.println("ARTISTIC NAME: "+artistList.get(select).getArtistic_name());
+        System.out.println("REAL NAME: "+artistList.get(select).getName());
+        System.out.println("ORIGIN: "+artistList.get(select).getOrigin());
+        System.out.println("YEARS ACTIVE: "+artistList.get(select).getActive_years());
+        System.out.println("SHORT BIOGRAPHY: "+artistList.get(select).getBiography());
+        System.out.println("UPCOMING CONCERTS: "+artistList.get(select).getConcertos());
+    }
     public static void login(){
 
         int found = 0;

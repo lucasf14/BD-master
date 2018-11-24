@@ -8,18 +8,9 @@ import java.util.List;
 
 public class Band extends Artist implements Serializable {
 
-    private List<Artist> members;
 
-    public Band(String years_active, String name, String origin, String ar_name, List<Artist> members, String biografy) {
-        super(years_active, name, origin, ar_name, biografy);
-        this.members = new ArrayList<>();
+    public Band(int years_active, String name, String origin, String ar_name, String biography, String concertos) {
+        super(ar_name, name, origin,years_active, biography, concertos);
     }
 
-    public void addMembers(Artist members) {
-        this.members.add(members);
-    }
-
-    public List<Artist> getMenbers() {
-        return members;
-    }
 }

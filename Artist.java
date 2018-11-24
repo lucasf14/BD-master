@@ -9,64 +9,42 @@ import java.util.List;
 public class Artist implements Serializable {
 
     private String artistic_name;
-    private String years_active;
     private String name;
-    private String biography;
-    private List<Genre> genre;
-    private List<Album> albums;
-    private List<Music> musics;
     private String origin;
+    private int active_years;
+    private String biography;
+    private String concertos;
 
-    public Artist(String years_active, String name, String origin, String ar_name, String biography) {
-        this.artistic_name = ar_name;
-        this.years_active = years_active;
+    public Artist(String artistic_name, String name, String origin, int active_years, String biography, String concertos) {
+        this.artistic_name = artistic_name;
         this.name = name;
         this.origin = origin;
+        this.active_years = active_years;
         this.biography = biography;
-        this.genre = new ArrayList<>();
-        this.albums = new ArrayList<>();
-        this.musics = new ArrayList<>();
-    }
-
-
-    public void addGenre(Genre genre) {
-        this.genre.add(genre);
-    }
-
-    public void addAlbum(Album albums) {
-        this.albums.add(albums);
-    }
-
-    public void addMusic(Music musics) {
-        this.musics.add(musics);
+        this.concertos = concertos;
     }
 
     public String getArtistic_name() {
         return artistic_name;
     }
 
-    public String getYears_active() {
-        return years_active;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public List<Genre> getGenre() {
-        return genre;
-    }
-
-    public List<Album> getAlbums() {
-        return albums;
-    }
-
-    public List<Music> getMusics() {
-        return musics;
     }
 
     public String getOrigin() {
         return origin;
     }
-}
 
+    public int getActive_years() {
+        return active_years;
+    }
+
+    public String getBiography() {
+        return biography;
+    }
+
+    public String getConcertos() {
+        return concertos;
+    }
+}

@@ -48,6 +48,19 @@ public class Init {
             System.out.println(e.fillInStackTrace());
         }
 
+        try{
+            String driver = "org.postgresql.Driver";
+            String url = "jdbc:postgresql://192.168.1.7:5432/postgres";
+            String username = "postgres";
+            String password = "root";
+            Class.forName(driver);
+            Connection comm = DriverManager.getConnection(url,username,password);
+            System.out.println("Connected");
+            return comm;
+        }catch (Exception e){
+            System.out.println(e.fillInStackTrace());
+        }
+
         return null;
     }
 
