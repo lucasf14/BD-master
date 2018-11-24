@@ -1,5 +1,4 @@
 import java.io.IOException;
-import java.net.ConnectException;
 import java.sql.*;
 import java.util.*;
 
@@ -32,7 +31,8 @@ public class Main {
         }
 
         login();
-        insert_music();
+        insert_artist();
+        //insert_music();
 
     }
 
@@ -146,7 +146,7 @@ public class Main {
                 pepstmt.setInt(4,user.getEditor());
                 pepstmt.execute();
                 pepstmt.close();
-                System.out.println("Regist successfull.");
+                System.out.println("Registration successful.");
                 sleep(2000);
             }else{
                 System.out.println("User already existent.\nRedirecting to Login.");
@@ -168,7 +168,7 @@ public class Main {
         stmt.execute("UPDATE  \"Users\"" +
                 "SET Permit = 1"+
                 "WHERE Email = \'"+user+"\';");
-        System.out.println("Permission changed successfuly.");
+        System.out.println("Permission changed successfully.");
 
     }
 
@@ -184,7 +184,7 @@ public class Main {
 
         if(user.getEditor() == 1){
 
-            System.out.println("Wich user do you want to provide editor permission?");
+            System.out.println("Which user do you want to provide editor permission?");
             ResultSet res = stmt.executeQuery("SELECT Email,Permit FROM \"Users\"");
 
             while(res.next()){
@@ -227,11 +227,11 @@ public class Main {
         PreparedStatement pepstmt;
         clearConsole();
 
-        if(user.getEditor() == 1){
+        if (user.getEditor() == 1) {
 
             System.out.println("-----ADD MUSIC-----");
             music_id = get_id("Musics");
-            System.out.println("Music ID: "+music_id);
+            System.out.println("Music ID: " + music_id);
             System.out.printf("Title: ");
             title = scan.nextLine();
             System.out.printf("Duration: ");
@@ -246,30 +246,68 @@ public class Main {
             System.out.printf("Artist / Band: ");
             artist = scan.nextLine();
 
-            pepstmt = connection.prepareStatement("INSERT INTO \"Musics\"("+
+            pepstmt = connection.prepareStatement("INSERT INTO \"Musics\"(" +
                     "music_id, title, duration, launch_date, upvotes, lyrics, format, singer)" +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
-            pepstmt.setInt(1,music_id);
-            pepstmt.setString(2,title);
-            pepstmt.setInt(3,duration);
-            pepstmt.setString(4,launch_date);
-            pepstmt.setInt(5,upvotes);
-            pepstmt.setString(6,lyrics);
+            pepstmt.setInt(1, music_id);
+            pepstmt.setString(2, title);
+            pepstmt.setInt(3, duration);
+            pepstmt.setString(4, launch_date);
+            pepstmt.setInt(5, upvotes);
+            pepstmt.setString(6, lyrics);
             pepstmt.setString(7, format);
             pepstmt.setString(8, artist);
             pepstmt.execute();
             pepstmt.close();
-            System.out.println("Music insert successfull.");
+            System.out.println("Music insertion successful.");
             sleep(2000);
 
 
-        }else{
+        } else {
             System.out.println("You have to be an editor to change database info.");
         }
 
     }
 
-    public static void insert_artist()
+    public static void insert_artist() throws SQLException, InterruptedException {
+        String artistic_name, nome, origin, biography, concertos;
+        int active_years;
+        Artist artist;
+        PreparedStatement pepstmt;
+        clearConsole();
+        if (user.getEditor() == 1) {
+            System.out.println("-----ADD ARTIST-----");
+            System.out.println("Artist name: ");
+            artistic_name = scan.nextLine();
+            System.out.println("Real name: ");
+            nome = scan.nextLine();
+            System.out.println("Origin: ");
+            origin = scan.nextLine();
+            System.out.println("Years active: ");
+            active_years = scan.nextInt();
+            scan.nextLine();
+            System.out.println("Short biography: ");
+            biography = scan.nextLine();
+            System.out.println("Next concerts: ");
+            concertos = scan.nextLine();
+
+            pepstmt = connection.prepareStatement("INSERT INTO \"Artists\"(artistic_name, nome, origin, active_years, biography, concertos" +
+                    ")" +
+                    "VALUES (?, ?, ?, ?, ?, ?);");
+            pepstmt.setString(1, artistic_name);
+            pepstmt.setString(2, nome);
+            pepstmt.setString(3, origin);
+            pepstmt.setInt(4, active_years);
+            pepstmt.setString(5, biography);
+            pepstmt.setString(6, concertos);
+            pepstmt.execute();
+            pepstmt.close();
+            System.out.println("Artist insertion successful.");
+            sleep(2000);
+        } else {
+            System.out.println("You have to be an editor to change database info.");
+        }
+    }
 
     public static int get_id(String table) throws SQLException {
 
