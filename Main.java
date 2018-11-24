@@ -13,15 +13,26 @@ import static java.lang.Thread.sleep;
 public class Main {
 
     private static Connection connection;
+    private static Statement stmt;
+    private static ResultSet res;
     private static User user;
     private static User outside_user;
+    private static Scanner scan;
 
     public static void main(String[] args) throws Exception {
 
         Init start = new Init();
         sleep(2000);
+        scan = new Scanner(System.in);
         connection = start.connection;
+
+        if((stmt = connection.createStatement()) == null) {
+            System.out.println("Erro nao foi possível criar uma statement ou retornou null");
+            System.exit(-1);
+        }
+
         login();
+        insert_music();
 
     }
 
@@ -29,13 +40,8 @@ public class Main {
 
         int found = 0; /* 0-> nao existe , 1->existe mail e pass corretos, 2-> pass incorreta*/
         PreparedStatement pepstmt;
-        Statement stmt = null;
-        Scanner scan = new Scanner(System.in);
+
         try {
-            if((stmt = connection.createStatement()) == null) {
-                System.out.println("Erro nao foi possível criar uma statement ou retornou null");
-                System.exit(-1);
-            }
 
             ResultSet res = stmt.executeQuery("SELECT Email,Nome,Password,Permit FROM \"Users\"");
             int i = 1;
@@ -68,15 +74,11 @@ public class Main {
         String password = "";
         String mail = "";
         PreparedStatement pepstmt;
-        Statement stmt = null;
         Scanner scan = new Scanner(System.in);
         clearConsole();
         System.out.println("-----LOGIN-----");
         try {
-            if((stmt = connection.createStatement()) == null) {
-                System.out.println("Erro nao foi possível criar uma statement ou retornou null");
-                System.exit(-1);
-            }
+
 
             while((mail.length() <= 10 && password.length() <= 6) && (!mail.equals("admin"))){
                 System.out.printf("Email: ");
@@ -93,7 +95,6 @@ public class Main {
                 user = outside_user;
                 System.out.println("Hello "+user.getName()+". Welcome back!");
                 System.out.println("Redirecting to menu.");
-                give_permits();
             }else if (found == 2){
                 System.out.println("Password is incorrect.");
                 sleep(1000);
@@ -104,7 +105,7 @@ public class Main {
                 register();
             }
 
-        } catch (SQLException | IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -119,15 +120,11 @@ public class Main {
         String password;
         String mail;
         PreparedStatement pepstmt;
-        Statement stmt = null;
         Scanner scan = new Scanner(System.in);
         clearConsole();
         System.out.println("-----REGIST-----");
         try {
-            if((stmt = connection.createStatement()) == null) {
-                System.out.println("Erro nao foi possível criar uma statement ou retornou null");
-                System.exit(-1);
-            }
+
 
 
             System.out.printf("Email: ");
@@ -181,23 +178,17 @@ public class Main {
         int found = 0;
         int position = 0;
         String username = "";
-        Statement stmt;
         Scanner scan = new Scanner(System.in);
 
         ArrayList<String> users =  new ArrayList<>();
 
         if(user.getEditor() == 1){
 
-            if((stmt = connection.createStatement()) == null) {
-                System.out.println("Erro nao foi possível criar uma statement ou retornou null");
-                System.exit(-1);
-            }
-
             System.out.println("Wich user do you want to provide editor permission?");
-            ResultSet res = stmt.executeQuery("SELECT Email FROM \"Users\"");
+            ResultSet res = stmt.executeQuery("SELECT Email,Permit FROM \"Users\"");
 
             while(res.next()){
-                if(!res.getString(1).equals(user.getUsername())){
+                if(!res.getString(1).equals(user.getUsername()) && res.getInt(2) != 1){
                     System.out.println("["+i+"]  "+res.getString(1));
                     users.add(res.getString(1));
                     i++;
@@ -207,21 +198,87 @@ public class Main {
             do{
                 System.out.printf("User number: ");
                 position = scan.nextInt();
-            }while(position >= users.size() && position > 0);
+            }while(position > users.size() && position > 0);
+
             username = users.get(position-1);
+            update_permits(username);
+            sleep(1300);
 
-            found = check_existence(username,"");
-
-            if(found == 2){
-                update_permits(username);
-                sleep(1300);
-            }
 
         }else{
             System.out.println("You don't have the permission to do this operation. Sending you back to menu.");
             sleep(2000);
         }
 
+    }
+
+    public static void insert_music() throws SQLException, InterruptedException {
+
+        Music music;
+
+        int music_id;
+        String title;
+        int duration;
+        String launch_date;
+        int upvotes = 0;
+        String lyrics;
+        String format;
+        String artist;
+        PreparedStatement pepstmt;
+        clearConsole();
+
+        if(user.getEditor() == 1){
+
+            System.out.println("-----ADD MUSIC-----");
+            music_id = get_id("Musics");
+            System.out.println("Music ID: "+music_id);
+            System.out.printf("Title: ");
+            title = scan.nextLine();
+            System.out.printf("Duration: ");
+            duration = scan.nextInt();
+            scan.nextLine();
+            System.out.printf("Launch Date: ");
+            launch_date = scan.nextLine();
+            System.out.printf("Lyrics: ");
+            lyrics = scan.nextLine();
+            System.out.printf("Format: ");
+            format = scan.nextLine();
+            System.out.printf("Artist / Band: ");
+            artist = scan.nextLine();
+
+            pepstmt = connection.prepareStatement("INSERT INTO \"Musics\"("+
+                    "music_id, title, duration, launch_date, upvotes, lyrics, format, singer)" +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
+            pepstmt.setInt(1,music_id);
+            pepstmt.setString(2,title);
+            pepstmt.setInt(3,duration);
+            pepstmt.setString(4,launch_date);
+            pepstmt.setInt(5,upvotes);
+            pepstmt.setString(6,lyrics);
+            pepstmt.setString(7, format);
+            pepstmt.setString(8, artist);
+            pepstmt.execute();
+            pepstmt.close();
+            System.out.println("Music insert successfull.");
+            sleep(2000);
+
+
+        }else{
+            System.out.println("You have to be an editor to change database info.");
+        }
+
+    }
+
+    public static void insert_artist()
+
+    public static int get_id(String table) throws SQLException {
+
+        int id = 0;
+        res = stmt.executeQuery("SELECT COUNT(*) FROM \""+table+"\";");
+        if(res.next()){
+            id = res.getInt(1);
+        }
+        return id+1;
     }
 
     public static String encrypt(String text, int s){
