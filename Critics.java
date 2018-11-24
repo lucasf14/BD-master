@@ -6,16 +6,18 @@
 
 /**
  *
- * @author ritag
+ * @author: Kalinka
  */
 import java.io.Serializable;
 
 public class Critics implements Serializable {
 
     private String critic;
+    private int id;
 
-    public Critics(String critic) {
+    public Critics(String critic,int id) {
         this.critic = critic;
+        this.id = id;
     }
 
     public void setCritic(String critic) {
@@ -24,6 +26,10 @@ public class Critics implements Serializable {
 
     public String getCritic() {
         return critic;
+    }
+
+    public int getId() {
+        return id;
     }
 }
 

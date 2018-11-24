@@ -3,10 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
- * @author ritag
+ * @author: Kalinka
  */
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -14,6 +13,7 @@ import java.util.List;
 
 public class Album implements Serializable {
 
+    private int album_id;
     private List<Music> setlist;
     private List<Critics> critics;
     private List<Genre> genres;
@@ -22,7 +22,8 @@ public class Album implements Serializable {
     private String title;
     private String launch;
 
-    public Album(Artist artist, String title, String launch) {
+    public Album(int id, Artist artist, String title, String launch) {
+        this.album_id = id;
         this.setlist = new ArrayList<>();
         this.critics = new ArrayList<>();
         this.genres = new ArrayList<>();

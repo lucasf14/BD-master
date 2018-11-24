@@ -3,10 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
- * @author ritag
+ * @author: Kalinka
  */
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -14,21 +13,23 @@ import java.util.List;
 
 public class User implements Serializable {
 
-    private boolean editor; /* 0 -> normal , 1 -> editor */
+    private int editor; /* 0 -> normal , 1 -> editor */
     private String password;
     private String mail;
+    private String name;
     private List<Music> playlist;
     private List<String> OfflineMess;
 
-    public User(String user, String pass){
-        this.editor = false;
+    public User(String user, String pass, String name){
+        this.editor = 0;
         this.password = pass;
         this.mail = user;
+        this.name = name;
         this.playlist = new ArrayList<>();
         this.OfflineMess = new ArrayList<>();
     }
 
-    public void setEditor(boolean editor) {
+    public void setEditor(int editor) {
         this.editor = editor;
     }
 
@@ -36,7 +37,7 @@ public class User implements Serializable {
         this.playlist.add(music);
     }
 
-    public boolean getEditor() {
+    public int getEditor() {
         return editor;
     }
 
@@ -48,15 +49,7 @@ public class User implements Serializable {
         return mail;
     }
 
-    public List<Music> getPlaylist() {
-        return playlist;
-    }
-
-    public List<String> getOfflineMess() {
-        return OfflineMess;
-    }
-
-    public void setOfflineMess(String offlineMess) {
-        OfflineMess.add(offlineMess);
+    public String getName() {
+        return name;
     }
 }
