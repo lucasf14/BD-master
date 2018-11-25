@@ -24,7 +24,7 @@ public class Playlist {
         this.titulo = titulo;
         this.email = email;
         this.n_musics = n_musics;
-        this.privacy = playlist_id;
+        this.privacy = privacy;
     }
 
     public int getPlaylist_id() {

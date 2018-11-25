@@ -135,6 +135,7 @@ public class Main {
                 insert_artist();
                 break;
             case "14":
+                edit();
                 break;
             case "15":
                 give_permits();
@@ -145,7 +146,7 @@ public class Main {
 
     }
 
-    public static void edit() throws SQLException {
+    public static void edit() throws SQLException, InterruptedException, IOException {
 
         String option;
         ArrayList<Music> musics = get_musics();
@@ -153,7 +154,18 @@ public class Main {
         clearConsole();
         System.out.println("----EDIT----");
         System.out.println("\n** Select 0 to go back to main menu **\n");
+        System.out.println("1: Associate Music to Artists");
+        System.out.println("1: Associate Album to Artists");
+        System.out.println("2: Associate Music to Album");
+        System.out.println("3: Associate Genre to Music");
+        System.out.println("4: Associate Genre to Album");
+        System.out.println("5: Associate Label to Music");
+        System.out.println("6: Associate Label to Album");
+        System.out.println("7: Associate Composer to Music");
+        System.out.println("8: Associate Composer to Music");
 
+        sleep(2000);
+        main_menu();
 
     }
 
@@ -620,6 +632,25 @@ public class Main {
             System.out.println("YEARS ACTIVE: "+artistList.get(select).getActive_years()+"\n");
             System.out.println("SHORT BIOGRAPHY: "+artistList.get(select).getBiography()+"\n");
             System.out.println("UPCOMING CONCERTS: "+artistList.get(select).getConcertos()+"\n");
+            System.out.printf("COMPSED: ");
+            set = stmt.executeQuery("SELECT \"Musics\".title " +
+                    "FROM \"Composers\",\"Musics\"" +
+                    "WHERE \"Musics\".music_id = \"Composers\".music_id " +
+                    "AND \"Composers\".artistic_name = '"+artistList.get(select).getArtistic_name()+"' ;");
+            while(set.next()){
+                System.out.printf(""+set.getString(1)+" ; ");
+            }
+            System.out.println("");
+            System.out.printf("ALBUMS: ");
+            set = stmt.executeQuery("SELECT \"Albums\".title " +
+                    "FROM \"Composers_Album\",\"Albums\"" +
+                    "WHERE \"Albums\".album_id = \"Composers_Album\".album_id " +
+                    "AND \"Composers_Album\".artistic_name = '"+artistList.get(select).getArtistic_name()+"' ;");
+            while(set.next()){
+                System.out.printf(""+set.getString(1)+" ; ");
+            }
+            System.out.println("\n");
+
         }
 
 
@@ -846,7 +877,7 @@ public class Main {
         try {
 
 
-            while((mail.length() <= 10 && password.length() <= 6) && (!mail.equals("admin"))){
+            while((mail.length() <= 10 && password.length() <= 6) && (!mail.toUpperCase().equals("ADMIN"))){
                 System.out.printf("Email: ");
                 mail = scan.nextLine();
                 System.out.printf("Password: ");
@@ -854,7 +885,7 @@ public class Main {
                 password = encrypt(password,4);
             }
 
-            found = check_existence(mail,password);
+            found = check_existence(mail.toUpperCase(),password);
 
             if(found == 1){
                 /*pass*/
@@ -1209,7 +1240,7 @@ public class Main {
 
             if(ind > 0){
 
-                set = stmt.executeQuery("SELECT COUNT(*) FROM \"Composers\" WHERE "+id_type+" = "+id+" AND artistic_name = '"+artists.get(ind-1).getArtistic_name()+"';");
+                set = stmt.executeQuery("SELECT COUNT(*) FROM \""+table+"\" WHERE "+id_type+" = "+id+" AND artistic_name = '"+artists.get(ind-1).getArtistic_name()+"';");
                 if(set.next()){
                     lines = set.getInt(1);
                 }
@@ -1222,10 +1253,8 @@ public class Main {
                     pepstmt.execute();
 
                 }else{
-                    pepstmt = connection.prepareStatement("UPDATE \""+table+"\"" +
-                            "SET "+id_type+"="+id+", artistic_name='"+artists.get(ind-1).getArtistic_name()+"'" +
-                            "WHERE artistic_name='"+artists.get(ind-1).getArtistic_name()+"';");
-                    pepstmt.execute();
+                    System.out.println("Composer already associated.");
+
                 }
 
             }
@@ -1261,7 +1290,7 @@ public class Main {
             }while(ind < 0 && ind > labels.size());
 
             if(ind > 0){
-                set = stmt.executeQuery("SELECT COUNT(*) FROM \"Labels\" WHERE " + id_type + " = " + id + " AND label = '" + labels.get(ind - 1).getLabel_name() + "';");
+                set = stmt.executeQuery("SELECT COUNT(*) FROM \""+table+"\" WHERE " + id_type + " = " + id + " AND label = '" + labels.get(ind - 1).getLabel_name() + "';");
                 if(set.next()){
                     lines = set.getInt(1);
                 }
@@ -1274,10 +1303,8 @@ public class Main {
                     pepstmt.execute();
 
                 }else{
-                    pepstmt = connection.prepareStatement("UPDATE \""+table+"\"" +
-                            "SET "+id_type+"="+id+", label='"+labels.get(ind-1).getLabel_name()+"'" +
-                            "WHERE label='"+labels.get(ind-1).getLabel_name()+"';");
-                    pepstmt.execute();
+                    System.out.println("Label already associated.");
+
                 }
             }
 
@@ -1312,7 +1339,7 @@ public class Main {
 
             if(ind > 0){
 
-                set = stmt.executeQuery("SELECT COUNT(*) FROM \"Genres\" WHERE " + id_type + " = " + id + " AND genre = '" + genres.get(ind - 1).getGenre() + "';");
+                set = stmt.executeQuery("SELECT COUNT(*) FROM \""+table+"\" WHERE " + id_type + " = " + id + " AND genre = '" + genres.get(ind - 1).getGenre() + "';");
                 if(set.next()){
                     lines = set.getInt(1);
                 }
@@ -1325,10 +1352,7 @@ public class Main {
                     pepstmt.execute();
 
                 }else{
-                    pepstmt = connection.prepareStatement("UPDATE \""+table+"\"" +
-                            "SET "+id_type+"="+id+", genre='"+genres.get(ind-1).getGenre()+"'" +
-                            "WHERE genre='"+genres.get(ind-1).getGenre()+"';");
-                    pepstmt.execute();
+                    System.out.println("Genre already associated.");
                 }
             }
 

@@ -17,24 +17,16 @@ public class User implements Serializable {
     private String password;
     private String mail;
     private String name;
-    private List<Music> playlist;
-    private List<String> OfflineMess;
 
     public User(String user, String pass, String name){
         this.editor = 0;
         this.password = pass;
         this.mail = user;
         this.name = name;
-        this.playlist = new ArrayList<>();
-        this.OfflineMess = new ArrayList<>();
     }
 
     public void setEditor(int editor) {
         this.editor = editor;
-    }
-
-    public void addToPlaylist(Music music) {
-        this.playlist.add(music);
     }
 
     public int getEditor() {

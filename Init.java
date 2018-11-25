@@ -132,6 +132,9 @@ public class Init {
         stmt.execute("CREATE TABLE IF NOT EXISTS \"Genres_Music\"(Music_id INT REFERENCES \"Musics\"(Music_id)," +
                 "Genre VARCHAR(255) REFERENCES \"Genres\"(genre));");
 
+        stmt.execute("CREATE TABLE IF NOT EXISTS \"Genres_Album\"(Album_id INT REFERENCES \"Albums\"(Album_id)," +
+                "Genre VARCHAR(255) REFERENCES \"Genres\"(genre));");
+
         stmt.execute("CREATE TABLE IF NOT EXISTS \"Labels_Music\"(Music_id INT REFERENCES \"Musics\"(Music_id)," +
                 "label VARCHAR(255) REFERENCES \"Labels\"(label));");
 
