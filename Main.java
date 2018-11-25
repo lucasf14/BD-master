@@ -154,17 +154,27 @@ public class Main {
         clearConsole();
         System.out.println("----EDIT----");
         System.out.println("\n** Select 0 to go back to main menu **\n");
-        System.out.println("1: Associate Music to Artists");
         System.out.println("1: Associate Album to Artists");
-        System.out.println("2: Associate Music to Album");
-        System.out.println("3: Associate Genre to Music");
-        System.out.println("4: Associate Genre to Album");
-        System.out.println("5: Associate Label to Music");
-        System.out.println("6: Associate Label to Album");
-        System.out.println("7: Associate Composer to Music");
-        System.out.println("8: Associate Composer to Music");
+        System.out.println("1: Associate Album to Composer");
+        System.out.println("2: Associate Album to Genre");
+        System.out.println("3: Associate Album to Label");
+        System.out.println("4: Associate Music to Album");
+        System.out.println("5: Associate Music to Composer");
+        System.out.println("6: Associate Music to Genre");
+        System.out.println("7: Associate Music to Label");
 
-        sleep(2000);
+        System.out.printf("\nOption: ");
+        option = scan.nextLine();
+
+        switch (option){
+
+            case "4":
+                associate_music_album();
+                break;
+            default:
+                main_menu();
+        }
+
         main_menu();
 
     }
@@ -453,6 +463,15 @@ public class Main {
                     "AND \"Musics\".title = '"+musicList.get(select).getTitle()+"';");
             while(res.next()){
                 System.out.printf(" "+res.getString(2)+" ;");
+            }
+            System.out.println("\n");
+            System.out.printf("ALBUM/S: ");
+            res = stmt.executeQuery("SELECT \"Albums\".title\n" +
+                    "FROM \"Albums\",\"Albums_Music\"\n" +
+                    "WHERE \"Albums\".album_id = \"Albums_Music\".album_id\n " +
+                    "AND \"Albums_Music\".music_id = "+musicList.get(select).getMusic_id()+";");
+            while(res.next()){
+                System.out.printf(" "+res.getString(1)+" ;");
             }
             System.out.println("\n");
 
@@ -1360,13 +1379,18 @@ public class Main {
         }
     }
 
-    public static void associate_music_album() throws SQLException {
+    public static void associate_music_album() throws SQLException, InterruptedException, IOException {
 
         ArrayList<Album> albums = get_albums();
         ArrayList<Music> music = get_musics();
         String ap, mp;
+        int apid;
+        int mpid;
+        int lines=0;
         ResultSet set;
+        ResultSet res;
         String art;
+        PreparedStatement pepstmt;
         clearConsole();
         System.out.println("----MUSICS -> ALBUMS----\n");
         System.out.println();
@@ -1387,13 +1411,42 @@ public class Main {
         for(int i = 0; i < albums.size(); i++){
             System.out.println("Album ["+(i+1)+"] : "+albums.get(i).getTitle() +" by "+albums.get(i).artist);
         }
+
+        System.out.printf("\nSelect album to associate: ");
+        ap = scan.nextLine();
+        apid = Integer.parseInt(ap) - 1;
+
         System.out.println("\n");
         for(int i = 0; i < music.size(); i++){
             System.out.println("Music ["+(i+1)+"] : "+music.get(i).getTitle() +" by "+music.get(i).getArtist());
         }
 
+        System.out.printf("\nSelect Music to associate: ");
+        mp = scan.nextLine();
+        mpid = Integer.parseInt(mp) - 1;
 
-
+        set = stmt.executeQuery("SELECT COUNT(*)\n" +
+                "      FROM \"Albums_Music\"\n" +
+                "            WHERE album_id = '"+albums.get(apid).getAlbum_id()+"'\n" +
+                "                    AND music_id = '"+music.get(mpid).getMusic_id()+"' ;");
+        if(set.next()){
+            lines = set.getInt(1);
+        }
+        if(lines < 1){
+            pepstmt = connection.prepareStatement("INSERT INTO public.\"Albums_Music\"(\n" +
+                    "\tmusic_id, album_id)\n" +
+                    "\tVALUES (?, ?);");
+            pepstmt.setInt(1,music.get(mpid).getMusic_id());
+            pepstmt.setInt(2,albums.get(apid).getAlbum_id());
+            pepstmt.execute();
+            pepstmt.close();
+            System.out.println("Associated "+music.get(mpid).getTitle()+" to "+albums.get(apid).getTitle());
+            sleep(2000);
+        }else{
+            System.out.println("Album and music are already associated to eachother.");
+            sleep(1000);
+        }
+        main_menu();
     }
 
     public static void add_critic(int id, String table, String id_type) throws SQLException, InterruptedException, IOException {
