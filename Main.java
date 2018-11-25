@@ -144,6 +144,10 @@ public class Main {
 
     }
 
+    public static void edit(){
+
+    }
+
     public static void back_to_menu() throws InterruptedException, SQLException, IOException {
 
         String op;
@@ -954,7 +958,7 @@ public class Main {
             System.out.println("You don't have the permission to do this operation. Sending you back to menu.");
             sleep(2000);
         }
-
+        back_to_menu();
     }
 
     public static void insert_music() throws SQLException, InterruptedException, IOException {
@@ -1014,8 +1018,9 @@ public class Main {
         }else{
             System.out.println("You have to be an editor to change database info.");
             sleep(1000);
-            main_menu();
         }
+        main_menu();
+
 
     }
 
@@ -1080,8 +1085,9 @@ public class Main {
         } else {
             System.out.println("You have to be an editor to change database info.");
             sleep(1000);
-            main_menu();
         }
+        main_menu();
+
     }
 
     public static void insert_album() throws SQLException, InterruptedException, IOException {
@@ -1137,8 +1143,8 @@ public class Main {
         }else{
             System.out.println("You have to be an editor to change database info.");
             sleep(1000);
-            main_menu();
         }
+        main_menu();
 
     }
 
@@ -1168,7 +1174,7 @@ public class Main {
             if(ind > 0){
                 pepstmt = connection.prepareStatement("INSERT INTO \""+table+"\"(" +
                         ""+id_type+", artistic_name)" +
-                        "VALUES (?, ?);");
+                        "VALUES (?, ?) WHERE NOT EXISTS( SELECT * FROM \""+table+"\" WHERE artistic_name = '"+artists.get(ind-1).getArtistic_name()+"';");
                 pepstmt.setInt(1,id);
                 pepstmt.setString(2,artists.get(ind-1).getArtistic_name());
                 pepstmt.execute();
@@ -1205,7 +1211,7 @@ public class Main {
             if(ind > 0){
                 pepstmt = connection.prepareStatement("INSERT INTO \""+table+"\"(" +
                         ""+id_type+", label)" +
-                        "VALUES (?, ?);");
+                        "VALUES (?, ?) WHERE NOT EXISTS( SELECT * FROM \""+table+"\" WHERE label ='"+labels.get(ind-1).getLabel_name()+"';");
                 pepstmt.setInt(1,id);
                 pepstmt.setString(2,labels.get(ind-1).getLabel_name());
                 pepstmt.execute();
@@ -1241,7 +1247,7 @@ public class Main {
             if(ind > 0){
                 pepstmt = connection.prepareStatement("INSERT INTO \""+table+"\"(" +
                         ""+id_type+", genre)" +
-                        "VALUES (?, ?);");
+                        "VALUES (?, ?) WHERE NOT EXISTS( SELECT * FROM \""+table+"\" WHERE genre = '"+genres.get(ind-1).getGenre()+"';");
                 pepstmt.setInt(1,id);
                 pepstmt.setString(2,genres.get(ind-1).getGenre());
                 pepstmt.execute();
