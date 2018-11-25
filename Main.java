@@ -186,15 +186,15 @@ public class Main {
                 break;
             case "5":
                 idpi = get_music_id(musics);
-                associate_composer(idpi,"Composers","album_id");
+                associate_composer(idpi,"Composers","music_id");
                 break;
             case "6":
                 idpi = get_music_id(musics);
-                associate_genre(idpi,"Genres_Music","album_id");
+                associate_genre(idpi,"Genres_Music","music_id");
                 break;
             case "7":
                 idpi = get_music_id(musics);
-                associate_label(idpi,"Labels_Music","album_id");
+                associate_label(idpi,"Labels_Music","music_id");
                 break;
             default:
                 main_menu();
