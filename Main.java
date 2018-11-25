@@ -151,10 +151,10 @@ public class Main {
         String option;
         ArrayList<Music> musics = get_musics();
         ArrayList<Album> albums = get_albums();
+        int idpi;
         clearConsole();
         System.out.println("----EDIT----");
         System.out.println("\n** Select 0 to go back to main menu **\n");
-        System.out.println("1: Associate Album to Artists");
         System.out.println("1: Associate Album to Composer");
         System.out.println("2: Associate Album to Genre");
         System.out.println("3: Associate Album to Label");
@@ -165,11 +165,36 @@ public class Main {
 
         System.out.printf("\nOption: ");
         option = scan.nextLine();
+        System.out.println();
 
         switch (option){
 
+            case "1":
+                idpi = get_album_id(albums);
+                associate_composer(idpi,"Composers_Album","album_id");
+                break;
+            case "2":
+                idpi = get_album_id(albums);
+                associate_genre(idpi,"Labels_Album","album_id");
+                break;
+            case "3":
+                idpi = get_album_id(albums);
+                associate_label(idpi,"Labels_Album","album_id");
+                break;
             case "4":
                 associate_music_album();
+                break;
+            case "5":
+                idpi = get_music_id(musics);
+                associate_composer(idpi,"Labels_Album","album_id");
+                break;
+            case "6":
+                idpi = get_music_id(musics);
+                associate_genre(idpi,"Labels_Album","album_id");
+                break;
+            case "7":
+                idpi = get_music_id(musics);
+                associate_label(idpi,"Labels_Album","album_id");
                 break;
             default:
                 main_menu();
@@ -177,6 +202,34 @@ public class Main {
 
         main_menu();
 
+    }
+
+    public static int get_album_id(ArrayList<Album> albums){
+        String option;
+        int idpi;
+        int id;
+        for(int i = 0; i < albums.size(); i++){
+            System.out.println("Album ["+(i+1)+"] "+albums.get(i).getTitle()+" by "+albums.get(i).artist);
+        }
+        System.out.printf("\nOption: ");
+        option = scan.nextLine();
+        idpi = Integer.parseInt(option);
+        id = albums.get(idpi-1).getAlbum_id();
+        return id;
+    }
+
+    public static int get_music_id(ArrayList<Music> musics){
+        String option;
+        int idpi;
+        int id;
+        for(int i = 0; i < musics.size(); i++){
+            System.out.println("Music ["+(i+1)+"] "+musics.get(i).getTitle()+" by "+musics.get(i).getArtist());
+        }
+        System.out.printf("\nOption: ");
+        option = scan.nextLine();
+        idpi = Integer.parseInt(option);
+        id = musics.get(idpi-1).getMusic_id();
+        return id;
     }
 
     public static void back_to_menu() throws InterruptedException, SQLException, IOException {
@@ -585,7 +638,15 @@ public class Main {
                 System.out.printf(" "+res.getString(2)+" ;");
             }
             System.out.println("\n");
-
+            System.out.printf("MUSIC/S: ");
+            res = stmt.executeQuery("SELECT \"Musics\".title\n" +
+                    "FROM \"Musics\",\"Albums_Music\"\n" +
+                    "WHERE \"Musics\".music_id = \"Albums_Music\".music_id\n " +
+                    "AND \"Albums_Music\".album_id = "+albumList.get(select).getAlbum_id()+";");
+            while(res.next()){
+                System.out.printf(" "+res.getString(1)+" ;");
+            }
+            System.out.println("\n");
 
             do {
                 System.out.println("Would you like to leave a critic? (y/n)");
@@ -651,7 +712,7 @@ public class Main {
             System.out.println("YEARS ACTIVE: "+artistList.get(select).getActive_years()+"\n");
             System.out.println("SHORT BIOGRAPHY: "+artistList.get(select).getBiography()+"\n");
             System.out.println("UPCOMING CONCERTS: "+artistList.get(select).getConcertos()+"\n");
-            System.out.printf("COMPSED: ");
+            System.out.printf("COMPOSED: ");
             set = stmt.executeQuery("SELECT \"Musics\".title " +
                     "FROM \"Composers\",\"Musics\"" +
                     "WHERE \"Musics\".music_id = \"Composers\".music_id " +
@@ -659,7 +720,7 @@ public class Main {
             while(set.next()){
                 System.out.printf(""+set.getString(1)+" ; ");
             }
-            System.out.println("");
+            System.out.println("\n");
             System.out.printf("ALBUMS: ");
             set = stmt.executeQuery("SELECT \"Albums\".title " +
                     "FROM \"Composers_Album\",\"Albums\"" +
