@@ -8,6 +8,7 @@ import java.util.List;
 
 public class Artist implements Serializable {
 
+    public String band;
     private String artistic_name;
     private String name;
     private String origin;

@@ -13,13 +13,14 @@ import java.util.List;
 
 public class Album implements Serializable {
 
+    public String artist;
     private int album_id;
     private String title;
     private String launch;
     private int duration;
     private int track_number;
 
-    public Album(int id, Artist artist, String title, int duration, String launch, int trackNumber) {
+    public Album(int id,  String title, int duration, String launch, int trackNumber) {
         this.album_id = id;
         this.duration = duration;
         this.title = title;

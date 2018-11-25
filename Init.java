@@ -61,6 +61,7 @@ public class Init {
             System.out.println(e.fillInStackTrace());
         }
 
+
         return null;
     }
 
@@ -92,34 +93,60 @@ public class Init {
 
         stmt.execute("CREATE TABLE IF NOT EXISTS \"Genres\"(Genre VARCHAR(255) PRIMARY KEY NOT NULL);");
 
+        stmt.execute("CREATE TABLE IF NOT EXISTS \"Labels\"(Label VARCHAR(255) PRIMARY KEY NOT NULL);");
+
+
         stmt.execute("CREATE TABLE IF NOT EXISTS \"Musics\"(Music_id INT PRIMARY KEY NOT NULL," +
                 "Title VARCHAR(255) NOT NULL," +
                 "Duration INT NOT NULL," +
                 "Launch_Date VARCHAR(255) NOT NULL," +
                 "Upvotes INT NOT NULL,"+
                 "Lyrics VARCHAR(255) NOT NULL,"+
-                "Format VARCHAR(255) NOT NULL,"+
-                "Playlist_id INT REFERENCES \"Playlists\"(Playlist_id),"+
-                "Artistic_name VARCHAR(255) REFERENCES \"Artists\"(Artistic_name)," +
-                "Genre VARCHAR(255) REFERENCES \"Genres\"(Genre));");
+                "Format VARCHAR(255) NOT NULL);");
 
         stmt.execute("CREATE TABLE IF NOT EXISTS \"Albums\"(Album_id INT PRIMARY KEY NOT NULL," +
                 "Title VARCHAR(255) NOT NULL," +
                 "Duration INT NOT NULL," +
                 "Launch_Date VARCHAR(255) NOT NULL," +
-                "Track_Number INT NOT NULL,"+
-                "Artistic_name VARCHAR(255) REFERENCES \"Artists\"(Artistic_name)," +
-                "Genre VARCHAR(255) REFERENCES \"Genres\"(Genre));");
+                "Track_Number INT NOT NULL);");
 
         stmt.execute("CREATE TABLE IF NOT EXISTS \"Album_Critics\"(Critic_id INT PRIMARY KEY NOT NULL," +
                 "Critic VARCHAR(255) NOT NULL," +
                 "Email VARCHAR(255) REFERENCES \"Users\"(Email)," +
-                "Music_id INT REFERENCES \"Albums\"(Album_id));");
+                "Album_id INT REFERENCES \"Albums\"(Album_id));");
 
         stmt.execute("CREATE TABLE IF NOT EXISTS \"Music_Critics\"(Critic_id INT PRIMARY KEY NOT NULL," +
                 "Critic VARCHAR(255) NOT NULL," +
                 "Email VARCHAR(255) REFERENCES \"Users\"(Email)," +
-                "Album_id INT REFERENCES \"Musics\"(Music_id));");
+                "Music_id INT REFERENCES \"Musics\"(Music_id));");
+
+        stmt.execute("CREATE TABLE IF NOT EXISTS \"Composers\"(Music_id INT REFERENCES \"Musics\"(Music_id)," +
+                "Artistic_name VARCHAR(255) REFERENCES \"Artists\"(Artistic_name));");
+
+        stmt.execute("CREATE TABLE IF NOT EXISTS \"Composers_Album\"(Album_id INT REFERENCES \"Albums\"(Album_id)," +
+                "Artistic_name VARCHAR(255) REFERENCES \"Artists\"(Artistic_name));");
+
+        stmt.execute("CREATE TABLE IF NOT EXISTS \"Players\"(Music_id INT REFERENCES \"Musics\"(Music_id)," +
+                "Artistic_name VARCHAR(255) REFERENCES \"Artists\"(Artistic_name));");
+
+        stmt.execute("CREATE TABLE IF NOT EXISTS \"Genres_Music\"(Music_id INT REFERENCES \"Musics\"(Music_id)," +
+                "Genre VARCHAR(255) REFERENCES \"Genres\"(genre));");
+
+        stmt.execute("CREATE TABLE IF NOT EXISTS \"Labels_Music\"(Music_id INT REFERENCES \"Musics\"(Music_id)," +
+                "label VARCHAR(255) REFERENCES \"Labels\"(label));");
+
+        stmt.execute("CREATE TABLE IF NOT EXISTS \"Labels_Album\"(Album_id INT REFERENCES \"Albums\"(Album_id)," +
+                "label VARCHAR(255) REFERENCES \"Labels\"(label));");
+
+        stmt.execute("CREATE TABLE IF NOT EXISTS \"Albums_Music\"(Music_id INT REFERENCES \"Musics\"(Music_id)," +
+                "Album_id INT REFERENCES \"Albums\"(Album_id));");
+
+        stmt.execute("CREATE TABLE IF NOT EXISTS \"Albums_Artists\"(Album_id INT REFERENCES \"Albums\"(Album_id)," +
+                "Artistic_name VARCHAR(255) REFERENCES \"Artists\"(Artistic_name));");
+
+
+        stmt.execute("CREATE TABLE IF NOT EXISTS \"Playlists_Musics\"(Playlist_id INT REFERENCES \"Playlists\"(Playlist_id)," +
+                "Music_id INT REFERENCES \"Musics\"(Music_id));");
 
         System.out.println("Data Base updated.");
 
