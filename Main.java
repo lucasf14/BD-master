@@ -1,3 +1,4 @@
+import com.mysql.cj.jdbc.util.ResultSetUtil;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
@@ -144,7 +145,15 @@ public class Main {
 
     }
 
-    public static void edit(){
+    public static void edit() throws SQLException {
+
+        String option;
+        ArrayList<Music> musics = get_musics();
+        ArrayList<Album> albums = get_albums();
+        clearConsole();
+        System.out.println("----EDIT----");
+        System.out.println("\n** Select 0 to go back to main menu **\n");
+
 
     }
 
@@ -714,10 +723,11 @@ public class Main {
         int i;
         int op = 0;
         int mp = 0;
+        int lines = 0;
         String option = "";
         ArrayList<Playlist> lista = get_playlists(2);
         PreparedStatement pepstmt;
-
+        ResultSet set;
 
         clearConsole();
         System.out.println("----ADD MUSIC TO PLAYLIST----\n");
@@ -750,12 +760,24 @@ public class Main {
                 main_menu();
             }else{
 
-                pepstmt = connection.prepareStatement("INSERT INTO \"Playlists_Musics\"(" +
-                        "playlist_id, music_id)" +
-                        "VALUES (?, ?);");
-                pepstmt.setInt(1,lista.get(op-1).getPlaylist_id());
-                pepstmt.setInt(2,musics.get(mp-1).getMusic_id());
-                pepstmt.execute();
+                set = stmt.executeQuery("SELECT COUNT(*) FROM \"Playlists_Musics\" WHERE music_id = "+musics.get(mp-1).getMusic_id()+" AND playlist_id = "+lista.get(op-1).getPlaylist_id()+";");
+                if(set.next()){
+                    lines = set.getInt(1);
+                    System.out.println("Number of musics: "+lines+"\n");
+                }
+                if(lines < 1){
+                    pepstmt = connection.prepareStatement("INSERT INTO \"Playlists_Musics\"(" +
+                            "playlist_id, music_id)" +
+                            "VALUES (?, ?);");
+                    pepstmt.setInt(1,lista.get(op-1).getPlaylist_id());
+                    pepstmt.setInt(2,musics.get(mp-1).getMusic_id());
+                    pepstmt.execute();
+                }else{
+                    pepstmt = connection.prepareStatement("UPDATE \"Playlists_Musics\"\n" +
+                            "SET playlist_id= "+musics.get(mp-1).getMusic_id()+", music_id= "+lista.get(op-1).getPlaylist_id()+" " +
+                            "WHERE music_id= \"+lista.get(op-1).getPlaylist_id()+\";");
+                }
+
                 pepstmt.close();
                 System.out.println("Added "+musics.get(mp-1).getTitle()+" to "+lista.get(op-1).getTitulo());
                 sleep(2000);
@@ -1028,6 +1050,8 @@ public class Main {
 
         String artistic_name, nome, origin, biography, concertos;
         int active_years;
+        int lines = 0;
+        ResultSet set;
         String g;
         String band;
         PreparedStatement pepstmt;
@@ -1049,38 +1073,48 @@ public class Main {
             System.out.printf("Next concerts: ");
             concertos = scan.nextLine();
 
-            pepstmt = connection.prepareStatement("INSERT INTO \"Artists\"(artistic_name, nome, origin, active_years, biography, concertos" +
-                    ")" +
-                    "VALUES (?, ?, ?, ?, ?, ?);");
-            pepstmt.setString(1, artistic_name);
-            pepstmt.setString(2, nome);
-            pepstmt.setString(3, origin);
-            pepstmt.setInt(4, active_years);
-            pepstmt.setString(5, biography);
-            pepstmt.setString(6, concertos);
-            pepstmt.execute();
-
-            do{
-                System.out.printf("Is this element part of any band? (y/n): ");
-                g = scan.nextLine();
-            }while(!g.toUpperCase().equals("Y") && !g.toUpperCase().equals("N"));
-
-            if (g.toUpperCase().equals("Y")){
-
-                System.out.printf("Band name: ");
-                band = scan.nextLine();
-                pepstmt = connection.prepareStatement("INSERT INTO \"Bands\"(band, artistic_name" +
+            set = stmt.executeQuery("SELECT COUNT(*) FROM \"Artists\" WHERE aristic_name = '"+artistic_name+"';");
+            if(set.next()){
+                lines = set.getInt(1);
+            }
+            if(lines < 1){
+                pepstmt = connection.prepareStatement("INSERT INTO \"Artists\"(artistic_name, nome, origin, active_years, biography, concertos" +
                         ")" +
-                        "VALUES (?, ?);");
-                pepstmt.setString(1, band);
-                pepstmt.setString(2, artistic_name);
+                        "VALUES (?, ?, ?, ?, ?, ?);");
+                pepstmt.setString(1, artistic_name);
+                pepstmt.setString(2, nome);
+                pepstmt.setString(3, origin);
+                pepstmt.setInt(4, active_years);
+                pepstmt.setString(5, biography);
+                pepstmt.setString(6, concertos);
+                pepstmt.execute();
 
+                do{
+                    System.out.printf("Is this element part of any band? (y/n): ");
+                    g = scan.nextLine();
+                }while(!g.toUpperCase().equals("Y") && !g.toUpperCase().equals("N"));
+
+                if (g.toUpperCase().equals("Y")){
+
+                    System.out.printf("Band name: ");
+                    band = scan.nextLine();
+                    pepstmt = connection.prepareStatement("INSERT INTO \"Bands\"(band, artistic_name" +
+                            ")" +
+                            "VALUES (?, ?);");
+                    pepstmt.setString(1, band);
+                    pepstmt.setString(2, artistic_name);
+
+                }
+
+                pepstmt.execute();
+                pepstmt.close();
+
+                System.out.println("Artist insertion successful.");
+
+            }else{
+                System.out.println("Artist already in data base.");
             }
 
-            pepstmt.execute();
-            pepstmt.close();
-
-            System.out.println("Artist insertion successful.");
             sleep(2000);
         } else {
             System.out.println("You have to be an editor to change database info.");
@@ -1152,6 +1186,8 @@ public class Main {
 
         String op = "";
         int ind;
+        int lines = 0;
+        ResultSet set;
         ArrayList<Artist> artists = get_artists();
         PreparedStatement pepstmt;
         clearConsole();
@@ -1172,12 +1208,26 @@ public class Main {
             }while(ind < 0 && ind > artists.size());
 
             if(ind > 0){
-                pepstmt = connection.prepareStatement("INSERT INTO \""+table+"\"(" +
-                        ""+id_type+", artistic_name)" +
-                        "VALUES (?, ?) WHERE NOT EXISTS( SELECT * FROM \""+table+"\" WHERE artistic_name = '"+artists.get(ind-1).getArtistic_name()+"';");
-                pepstmt.setInt(1,id);
-                pepstmt.setString(2,artists.get(ind-1).getArtistic_name());
-                pepstmt.execute();
+
+                set = stmt.executeQuery("SELECT COUNT(*) FROM \"Composers\" WHERE "+id_type+" = "+id+" AND artistic_name = '"+artists.get(ind-1).getArtistic_name()+"';");
+                if(set.next()){
+                    lines = set.getInt(1);
+                }
+                if(lines < 1){
+                    pepstmt = connection.prepareStatement("INSERT INTO \""+table+"\"(" +
+                            ""+id_type+", artistic_name)" +
+                            "VALUES (?, ?);");
+                    pepstmt.setInt(1,id);
+                    pepstmt.setString(2,artists.get(ind-1).getArtistic_name());
+                    pepstmt.execute();
+
+                }else{
+                    pepstmt = connection.prepareStatement("UPDATE \""+table+"\"" +
+                            "SET "+id_type+"="+id+", artistic_name='"+artists.get(ind-1).getArtistic_name()+"'" +
+                            "WHERE artistic_name='"+artists.get(ind-1).getArtistic_name()+"';");
+                    pepstmt.execute();
+                }
+
             }
 
         }while(ind != 0 && ind != -1);
@@ -1190,6 +1240,8 @@ public class Main {
 
         String op = "";
         int ind;
+        int lines = 0;
+        ResultSet set;
         ArrayList<Label> labels = get_labels();
         PreparedStatement pepstmt;
         clearConsole();
@@ -1209,12 +1261,24 @@ public class Main {
             }while(ind < 0 && ind > labels.size());
 
             if(ind > 0){
-                pepstmt = connection.prepareStatement("INSERT INTO \""+table+"\"(" +
-                        ""+id_type+", label)" +
-                        "VALUES (?, ?) WHERE NOT EXISTS( SELECT * FROM \""+table+"\" WHERE label ='"+labels.get(ind-1).getLabel_name()+"';");
-                pepstmt.setInt(1,id);
-                pepstmt.setString(2,labels.get(ind-1).getLabel_name());
-                pepstmt.execute();
+                set = stmt.executeQuery("SELECT COUNT(*) FROM \"Labels\" WHERE " + id_type + " = " + id + " AND label = '" + labels.get(ind - 1).getLabel_name() + "';");
+                if(set.next()){
+                    lines = set.getInt(1);
+                }
+                if(lines < 1){
+                    pepstmt = connection.prepareStatement("INSERT INTO \""+table+"\"(" +
+                            ""+id_type+", label)" +
+                            "VALUES (?, ?);");
+                    pepstmt.setInt(1,id);
+                    pepstmt.setString(2,labels.get(ind-1).getLabel_name());
+                    pepstmt.execute();
+
+                }else{
+                    pepstmt = connection.prepareStatement("UPDATE \""+table+"\"" +
+                            "SET "+id_type+"="+id+", label='"+labels.get(ind-1).getLabel_name()+"'" +
+                            "WHERE label='"+labels.get(ind-1).getLabel_name()+"';");
+                    pepstmt.execute();
+                }
             }
 
         }while(ind != 0 && ind != -1);
@@ -1227,6 +1291,8 @@ public class Main {
 
         String op = "";
         int ind;
+        int lines = 0;
+        ResultSet set;
         ArrayList<Genre> genres = get_genres();
         PreparedStatement pepstmt;
         clearConsole();
@@ -1245,12 +1311,25 @@ public class Main {
             }while(ind < 0 && ind > genres.size());
 
             if(ind > 0){
-                pepstmt = connection.prepareStatement("INSERT INTO \""+table+"\"(" +
-                        ""+id_type+", genre)" +
-                        "VALUES (?, ?) WHERE NOT EXISTS( SELECT * FROM \""+table+"\" WHERE genre = '"+genres.get(ind-1).getGenre()+"';");
-                pepstmt.setInt(1,id);
-                pepstmt.setString(2,genres.get(ind-1).getGenre());
-                pepstmt.execute();
+
+                set = stmt.executeQuery("SELECT COUNT(*) FROM \"Genres\" WHERE " + id_type + " = " + id + " AND genre = '" + genres.get(ind - 1).getGenre() + "';");
+                if(set.next()){
+                    lines = set.getInt(1);
+                }
+                if(lines < 1){
+                    pepstmt = connection.prepareStatement("INSERT INTO \""+table+"\"(" +
+                            ""+id_type+", genre)" +
+                            "VALUES (?, ?);");
+                    pepstmt.setInt(1,id);
+                    pepstmt.setString(2,genres.get(ind-1).getGenre());
+                    pepstmt.execute();
+
+                }else{
+                    pepstmt = connection.prepareStatement("UPDATE \""+table+"\"" +
+                            "SET "+id_type+"="+id+", genre='"+genres.get(ind-1).getGenre()+"'" +
+                            "WHERE genre='"+genres.get(ind-1).getGenre()+"';");
+                    pepstmt.execute();
+                }
             }
 
         }while(ind != 0 && ind != -1);
@@ -1401,4 +1480,3 @@ public class Main {
 
 
 }
-
