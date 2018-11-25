@@ -21,8 +21,9 @@ public class Main {
     private static User user;
     private static User outside_user;
     private static Scanner scan;
+    private static Init init;
 
-    public static void welcome() throws IOException, InterruptedException {
+    public static void welcome() throws Exception {
 
         String option = "0";
 
@@ -51,11 +52,15 @@ public class Main {
 
     }
 
-    public static void main_menu() throws IOException, InterruptedException, SQLException {
+    public static void main_menu() throws Exception {
 
         String option = "";
         String text = "";
         clearConsole();
+        System.out.println("______________________\n");
+        System.out.println("_____FAKE SPOTIFY_____\n");
+        System.out.println("______________________\n\n");
+
         System.out.println("----MAIN MENU----\n");
         System.out.println("1: Search Musics");
         System.out.println("2: Search Albums");
@@ -71,9 +76,13 @@ public class Main {
         System.out.println("11: Insert Musics");
         System.out.println("12: Insert Albums");
         System.out.println("13: Insert Artists");
-        System.out.println("14: Edit Info");
-        System.out.println("15: Give Permissions\n");
-        System.out.println("0: EXIT\n");
+        System.out.println("14: Insert Genre");
+        System.out.println("15: Insert Label");
+        System.out.println("16: Edit Info");
+        System.out.println("17: Give Permissions\n");
+        System.out.println("----ADMIN OPTIONS-----\n");
+        System.out.println("18: Terminate DataBase\n");
+        System.out.println("\n0: EXIT\n");
 
         System.out.printf("Option: ");
         option = scan.nextLine();
@@ -135,10 +144,25 @@ public class Main {
                 insert_artist();
                 break;
             case "14":
-                edit();
+                insert_genre();
                 break;
             case "15":
+                insert_label();
+                break;
+            case "16":
+                edit();
+                break;
+            case "17":
                 give_permits();
+                break;
+            case "18":
+                if(user.getUsername().toUpperCase().equals("ADMIN")){
+                    init.terminate_database(stmt,connection);
+                }else{
+                    System.out.println("Need to be admin to this operation.");
+                    sleep(2000);
+                    main_menu();
+                }
                 break;
             default:
                 main_menu();
@@ -146,7 +170,7 @@ public class Main {
 
     }
 
-    public static void edit() throws SQLException, InterruptedException, IOException {
+    public static void edit() throws Exception {
 
         String option;
         ArrayList<Music> musics = get_musics();
@@ -163,45 +187,51 @@ public class Main {
         System.out.println("6: Associate Music to Genre");
         System.out.println("7: Associate Music to Label");
 
-        System.out.printf("\nOption: ");
-        option = scan.nextLine();
-        System.out.println();
+        if(user.getEditor() == 1){
 
-        switch (option){
+            System.out.printf("\nOption: ");
+            option = scan.nextLine();
+            System.out.println();
 
-            case "1":
-                idpi = get_album_id(albums);
-                associate_composer(idpi,"Composers_Album","album_id");
-                break;
-            case "2":
-                idpi = get_album_id(albums);
-                associate_genre(idpi,"Genres_Album","album_id");
-                break;
-            case "3":
-                idpi = get_album_id(albums);
-                associate_label(idpi,"Labels_Album","album_id");
-                break;
-            case "4":
-                associate_music_album();
-                break;
-            case "5":
-                idpi = get_music_id(musics);
-                associate_composer(idpi,"Composers","music_id");
-                break;
-            case "6":
-                idpi = get_music_id(musics);
-                associate_genre(idpi,"Genres_Music","music_id");
-                break;
-            case "7":
-                idpi = get_music_id(musics);
-                associate_label(idpi,"Labels_Music","music_id");
-                break;
-            default:
-                main_menu();
+            switch (option){
+
+                case "1":
+                    idpi = get_album_id(albums);
+                    associate_composer(idpi,"Composers_Album","album_id");
+                    break;
+                case "2":
+                    idpi = get_album_id(albums);
+                    associate_genre(idpi,"Genres_Album","album_id");
+                    break;
+                case "3":
+                    idpi = get_album_id(albums);
+                    associate_label(idpi,"Labels_Album","album_id");
+                    break;
+                case "4":
+                    associate_music_album();
+                    break;
+                case "5":
+                    idpi = get_music_id(musics);
+                    associate_composer(idpi,"Composers","music_id");
+                    break;
+                case "6":
+                    idpi = get_music_id(musics);
+                    associate_genre(idpi,"Genres_Music","music_id");
+                    break;
+                case "7":
+                    idpi = get_music_id(musics);
+                    associate_label(idpi,"Labels_Music","music_id");
+                    break;
+                default:
+                    main_menu();
+            }
+        }else{
+            System.out.println("You don't have the permission to do this operation. Sending you back to menu.");
+            sleep(2000);
         }
 
-        main_menu();
 
+        back_to_menu();
     }
 
     public static int get_album_id(ArrayList<Album> albums){
@@ -232,7 +262,7 @@ public class Main {
         return id;
     }
 
-    public static void back_to_menu() throws InterruptedException, SQLException, IOException {
+    public static void back_to_menu() throws Exception {
 
         String op;
         int i = 0;
@@ -243,7 +273,7 @@ public class Main {
 
     }
 
-    public static void create_playlist() throws SQLException, InterruptedException, IOException {
+    public static void create_playlist() throws Exception {
 
         int playlist_id = get_id("Playlists","playlist_id");
         String playlist_name;
@@ -276,7 +306,7 @@ public class Main {
 
     }
 
-    public static void delete_playlist() throws SQLException, InterruptedException, IOException {
+    public static void delete_playlist() throws Exception {
 
         int play_id;
         int i;
@@ -444,7 +474,7 @@ public class Main {
         return genres;
     }
 
-    public static void searchMusic(String titleSearch) throws SQLException, IOException, InterruptedException {
+    public static void searchMusic(String titleSearch) throws Exception {
 
         int select;
         Music music;
@@ -544,7 +574,7 @@ public class Main {
         }
     }
 
-    public static void searchAlbum(String albumSearch) throws SQLException, IOException, InterruptedException {
+    public static void searchAlbum(String albumSearch) throws Exception {
 
         int select;
         String op;
@@ -663,7 +693,7 @@ public class Main {
         }
     }
 
-    public static void searchArtist(String artistSearch) throws SQLException, IOException, InterruptedException {
+    public static void searchArtist(String artistSearch) throws Exception {
         int select;
         Artist artist;
         String band = "";
@@ -737,7 +767,7 @@ public class Main {
         back_to_menu();
     }
 
-    public static void my_critics() throws SQLException, IOException, InterruptedException {
+    public static void my_critics() throws Exception {
 
         ResultSet set;
 
@@ -771,7 +801,7 @@ public class Main {
 
     }
 
-    public static void my_playlists() throws SQLException, IOException, InterruptedException {
+    public static void my_playlists() throws Exception {
 
         int i;
         int j = 1;
@@ -800,7 +830,7 @@ public class Main {
         back_to_menu();
     }
 
-    public static void all_playlists() throws SQLException, IOException, InterruptedException {
+    public static void all_playlists()throws Exception {
 
         int i;
         int p = 1;
@@ -829,7 +859,7 @@ public class Main {
         back_to_menu();
     }
 
-    public static void add_music_to_playlist() throws SQLException, IOException, InterruptedException {
+    public static void add_music_to_playlist() throws Exception {
 
         int i;
         int op = 0;
@@ -898,6 +928,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         Init start = new Init();
+        init = start;
         sleep(2000);
         scan = new Scanner(System.in);
         connection = start.connection;
@@ -943,7 +974,7 @@ public class Main {
 
     }
 
-    public static void login(){
+    public static void login()throws Exception{
 
         int found = 0;
         String password = "";
@@ -992,7 +1023,7 @@ public class Main {
 
     }
 
-    public static void register() throws IOException {
+    public static void register() throws Exception {
 
         int found = 0;
         String nome;
@@ -1052,7 +1083,7 @@ public class Main {
 
     }
 
-    public static void give_permits() throws InterruptedException, IOException, SQLException {
+    public static void give_permits() throws Exception {
 
         int i = 1;
         int found = 0;
@@ -1092,7 +1123,7 @@ public class Main {
         back_to_menu();
     }
 
-    public static void insert_music() throws SQLException, InterruptedException, IOException {
+    public static void insert_music() throws Exception {
 
         int music_id;
         String title;
@@ -1155,7 +1186,7 @@ public class Main {
 
     }
 
-    public static void insert_artist() throws SQLException, InterruptedException, IOException {
+    public static void insert_artist() throws Exception {
 
         String artistic_name, nome, origin, biography, concertos;
         int active_years;
@@ -1233,7 +1264,7 @@ public class Main {
 
     }
 
-    public static void insert_album() throws SQLException, InterruptedException, IOException {
+    public static void insert_album() throws Exception {
 
         int album_id;
         String title;
@@ -1291,7 +1322,85 @@ public class Main {
 
     }
 
-    public static void associate_composer(int id, String table, String id_type) throws SQLException, IOException, InterruptedException {
+    public static void insert_genre() throws Exception{
+
+        ArrayList<Genre> genres = get_genres();
+        int id;
+        int i = 0;
+        int error = 0;
+        String name;
+        PreparedStatement pepstmt;
+        clearConsole();
+        System.out.println("----ADD GENRES-----\n");
+        if(user.getEditor() == 1){
+            System.out.printf("Genre name: ");
+            name = scan.nextLine();
+            while(i < genres.size() && error == 0){
+                if(name.toUpperCase().equals(genres.get(i).getGenre().toUpperCase())){
+                    error++;
+                }
+                i++;
+            }
+            if(error == 0){
+                pepstmt = connection.prepareStatement("INSERT INTO \"Genres\"(\n" +
+                        "\tgenre)\n" +
+                        "\tVALUES (?);");
+                pepstmt.setString(1,name);
+                pepstmt.execute();
+                pepstmt.close();
+                System.out.println("Genre inserted successfully.");
+                sleep(1000);
+            }else{
+                System.out.println("Genre already in DataBase.");
+                sleep(1000);
+            }
+        }else{
+            System.out.println("You have to be an editor to change database info.");
+            sleep(1000);
+        }
+        main_menu();
+    }
+
+    public static void insert_label() throws Exception{
+
+        ArrayList<Label> labels = get_labels();
+        int id;
+        int i = 0;
+        int error = 0;
+        String name;
+        PreparedStatement pepstmt;
+        clearConsole();
+        System.out.println("----ADD LABEL-----\n");
+        if(user.getEditor() == 1){
+            System.out.printf("Label name: ");
+            name = scan.nextLine();
+            while(i < labels.size() && error == 0){
+                if(name.toUpperCase().equals(labels.get(i).getLabel_name().toUpperCase())){
+                    error++;
+                }
+                i++;
+            }
+            if(error == 0){
+                pepstmt = connection.prepareStatement("INSERT INTO \"Labels\"(\n" +
+                        "\tlabel)\n" +
+                        "\tVALUES (?);");
+                pepstmt.setString(1,name);
+                pepstmt.execute();
+                pepstmt.close();
+                System.out.println("Label inserted successfully.");
+                sleep(1000);
+            }else{
+                System.out.println("Label already in DataBase.");
+                sleep(1000);
+            }
+        }else{
+            System.out.println("You have to be an editor to change database info.");
+            sleep(1000);
+        }
+        main_menu();
+    }
+
+    public static void associate_composer(int id, String table, String id_type) throws Exception {
 
         String op = "";
         int ind;
@@ -1343,7 +1452,7 @@ public class Main {
         }
     }
 
-    public static void associate_label(int id, String table, String id_type) throws SQLException, IOException, InterruptedException {
+    public static void associate_label(int id, String table, String id_type) throws Exception {
 
         String op = "";
         int ind;
@@ -1392,7 +1501,7 @@ public class Main {
         }
     }
 
-    public static void associate_genre(int id, String table, String id_type) throws SQLException, IOException, InterruptedException {
+    public static void associate_genre(int id, String table, String id_type) throws Exception {
 
         String op = "";
         int ind;
@@ -1440,7 +1549,7 @@ public class Main {
         }
     }
 
-    public static void associate_music_album() throws SQLException, InterruptedException, IOException {
+    public static void associate_music_album() throws Exception {
 
         ArrayList<Album> albums = get_albums();
         ArrayList<Music> music = get_musics();
@@ -1515,7 +1624,7 @@ public class Main {
         main_menu();
     }
 
-    public static void add_critic(int id, String table, String id_type) throws SQLException, InterruptedException, IOException {
+    public static void add_critic(int id, String table, String id_type) throws Exception {
 
         int critic_id;
         String critic;
@@ -1542,7 +1651,7 @@ public class Main {
 
     }
 
-    public static void delete_account() throws InterruptedException, SQLException, IOException {
+    public static void delete_account() throws Exception {
 
         ArrayList<Playlist> playlists;
         String choice = "";

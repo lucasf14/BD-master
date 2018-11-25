@@ -16,7 +16,6 @@ public class Init {
         Statement stmt = null;
         ResultSet set = null;
         ResultSetMetaData meta = null;
-        String[] tables = {"Users","Album_Critics","Artists","Albums","Bands","Genres","Music_Critics","Musics","Playlists"};
 
         connection = getConnection();
         try{
@@ -126,9 +125,6 @@ public class Init {
         stmt.execute("CREATE TABLE IF NOT EXISTS \"Composers_Album\"(Album_id INT REFERENCES \"Albums\"(Album_id)," +
                 "Artistic_name VARCHAR(255) REFERENCES \"Artists\"(Artistic_name));");
 
-        stmt.execute("CREATE TABLE IF NOT EXISTS \"Players\"(Music_id INT REFERENCES \"Musics\"(Music_id)," +
-                "Artistic_name VARCHAR(255) REFERENCES \"Artists\"(Artistic_name));");
-
         stmt.execute("CREATE TABLE IF NOT EXISTS \"Genres_Music\"(Music_id INT REFERENCES \"Musics\"(Music_id)," +
                 "Genre VARCHAR(255) REFERENCES \"Genres\"(genre));");
 
@@ -155,9 +151,15 @@ public class Init {
 
     }
 
-    public static void terminate_database(Statement stmt, Connection c, String[] tables) throws Exception{
+    public static void terminate_database(Statement stmt, Connection c) throws Exception{
+
         ResultSet set = null;
         ResultSetMetaData meta = null;
+        String[] tables = {"Users","Album_Critics","Artists","Albums",
+                "Bands","Genres", "Music_Critics","Musics","Playlists",
+                "Albums_Music","Albums_Artist","Composers","Composers_Album",
+                "Genres_Album","Genres_Music","Labels","Labels_Music","Labels_Album",
+                "Playlists_Musics"};
 
         for(int i = 0; i < tables.length; i++){
 
