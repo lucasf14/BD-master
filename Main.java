@@ -63,14 +63,15 @@ public class Main {
         System.out.println("5: Create Playlist");
         System.out.println("6: Add Music to Playlist");
         System.out.println("7: Search Public playlists");
-        System.out.println("8: Delete Playlist");
-        System.out.println("9: Delete Account\n");
+        System.out.println("8: See your critics");
+        System.out.println("9: Delete Playlist");
+        System.out.println("10: Delete Account\n");
         System.out.println("----EDITOR OPTIONS-----\n");
-        System.out.println("10: Insert Musics");
-        System.out.println("11: Insert Albums");
-        System.out.println("12: Insert Artists");
-        System.out.println("13: Edit Info");
-        System.out.println("14: Give Permissions\n");
+        System.out.println("11: Insert Musics");
+        System.out.println("12: Insert Albums");
+        System.out.println("13: Insert Artists");
+        System.out.println("14: Edit Info");
+        System.out.println("15: Give Permissions\n");
         System.out.println("0: EXIT\n");
 
         System.out.printf("Option: ");
@@ -115,7 +116,27 @@ public class Main {
                 all_playlists();
                 break;
             case "8":
-                all_playlists();
+                my_critics();
+                break;
+            case "9":
+                delete_playlist();
+                break;
+            case "10":
+                delete_account();
+                break;
+            case "11":
+                insert_music();
+                break;
+            case "12":
+                insert_album();
+                break;
+            case "13":
+                insert_artist();
+                break;
+            case "14":
+                break;
+            case "15":
+                give_permits();
                 break;
             default:
                 main_menu();
@@ -136,7 +157,7 @@ public class Main {
 
     public static void create_playlist() throws SQLException, InterruptedException, IOException {
 
-        int playlist_id = get_id("Playlists");
+        int playlist_id = get_id("Playlists","playlist_id");
         String playlist_name;
         int privacy;
         PreparedStatement pepstmt;
@@ -164,6 +185,67 @@ public class Main {
         System.out.println("New playlist "+playlist_name+" createad succesfully.");
         sleep(2000);
         main_menu();
+
+    }
+
+    public static void delete_playlist() throws SQLException, InterruptedException, IOException {
+
+        int play_id;
+        int i;
+        int j = 1;
+        int choice = 0;
+        ArrayList<Playlist> lista = get_playlists(2);
+        ResultSet set;
+        String playlist;
+        PreparedStatement pepstmt;
+
+        clearConsole();
+
+        System.out.println("-----DELETE PLAYLIST-----");
+        System.out.println("\nSelect 0 to go back to main menu. \n");
+        for(i = 0; i < lista.size(); i++){
+            try{
+                System.out.println("Playlist ["+(i+1)+"]: "+lista.get(i).getTitulo());
+                set = stmt.executeQuery("SELECT \"Playlists\".titulo, \"Musics\".title" +
+                        " FROM \"Playlists\",\"Musics\",\"Playlists_Musics\" " +
+                        "WHERE \"Playlists\".playlist_id = \"Playlists_Musics\".playlist_id " +
+                        "AND \"Musics\".music_id = \"Playlists_Musics\".music_id " +
+                        "AND \"Playlists\".titulo = \'"+lista.get(i).getTitulo()+"\';");
+                while(set.next()){
+                    System.out.println("   Music ["+j+"] : "+set.getString(2));
+                    j++;
+                }
+                j = 1;
+            }catch (PSQLException e){
+                System.out.println("No musics");
+            }
+        }
+
+        System.out.printf("\nWich playlist would you like to delete?\n");
+        do {
+            System.out.printf("-> ");
+            playlist = scan.nextLine();
+            choice = Integer.parseInt(playlist);
+        }while(choice < 0 || choice > lista.size());
+
+        play_id = lista.get(choice-1).getPlaylist_id();
+
+        if(choice == 0){
+            sleep(1000);
+            main_menu();
+        }else{
+
+            System.out.println("\nDeleting playlist "+lista.get(choice-1).getTitulo());
+            sleep(2000);
+            pepstmt = connection.prepareStatement("DELETE FROM \"Playlists_Musics\" WHERE playlist_id = "+play_id+";");
+            pepstmt.execute();
+            pepstmt = connection.prepareStatement("DELETE FROM \"Playlists\" WHERE playlist_id = "+play_id+";");
+            pepstmt.execute();
+            pepstmt.close();
+            System.out.println("Playlist "+lista.get(choice-1).getTitulo()+" deleted successfully.");
+            sleep(2000);
+            main_menu();
+        }
 
     }
 
@@ -451,10 +533,10 @@ public class Main {
                 System.out.println("ARTIST: "+albumList.get(select).artist+"\n");
             }
             System.out.printf("CRITIC/S: ");
-            res = stmt.executeQuery("SELECT \"Musics\".title, \"Album_critics\".critic\n" +
-                    "FROM \"Musics\",\"Album_critics\"\n" +
-                    "WHERE \"Musics\".music_id = \"Album_critics\".music_id " +
-                    "AND \"Musics\".title = '"+albumList.get(select).getTitle()+"';");
+            res = stmt.executeQuery("SELECT \"Albums\".title, \"Album_Critics\".critic\n" +
+                    "FROM \"Albums\",\"Album_Critics\"\n" +
+                    "WHERE \"Albums\".album_id = \"Album_Critics\".album_id " +
+                    "AND \"Albums\".title = '"+albumList.get(select).getTitle()+"';");
             while(res.next()){
                 System.out.printf(" "+res.getString(2)+" ;");
             }
@@ -467,7 +549,7 @@ public class Main {
                 op = scan.nextLine();
             }while(!op.toUpperCase().equals("Y") && !op.toUpperCase().equals("N"));
 
-            if(op.equals("Y")){
+            if(op.toUpperCase().equals("Y")){
                 add_critic(albumList.get(select).getAlbum_id(),"Album_Critics","album_id");
             }else{
                 back_to_menu();
@@ -529,6 +611,40 @@ public class Main {
 
 
         back_to_menu();
+    }
+
+    public static void my_critics() throws SQLException, IOException, InterruptedException {
+
+        ResultSet set;
+
+        set = stmt.executeQuery("SELECT \"Users\".email, \"Music_Critics\".critic, \"Musics\".title " +
+                "FROM \"Users\",\"Music_Critics\",\"Musics\"" +
+                "WHERE \"Users\".email = \"Music_Critics\".email " +
+                "AND \"Musics\".music_id = \"Music_Critics\".music_id " +
+                "AND \"Music_Critics\".email = '"+user.getUsername()+"';");
+
+        clearConsole();
+        System.out.println("----MUSICS CRITICS----\n");
+        System.out.println("User: "+user.getUsername()+"\n");
+
+        while(set.next()){
+            System.out.println("CRITIC : "+set.getString(2)+" to "+set.getString(3));
+        }
+
+        System.out.println("\n----ALBUM CRITICS----\n");
+
+        set = stmt.executeQuery("SELECT \"Users\".email, \"Album_Critics\".critic, \"Albums\".title " +
+                "FROM \"Users\",\"Album_Critics\",\"Albums\"" +
+                "WHERE \"Users\".email = \"Album_Critics\".email " +
+                "AND \"Albums\".album_id = \"Album_Critics\".album_id " +
+                "AND \"Album_Critics\".email = '"+user.getUsername()+"';");
+
+        while(set.next()){
+            System.out.println("CRITIC : "+set.getString(2)+" to "+set.getString(3));
+        }
+
+        back_to_menu();
+
     }
 
     public static void my_playlists() throws SQLException, IOException, InterruptedException {
@@ -774,8 +890,9 @@ public class Main {
                 pepstmt.setInt(4,user.getEditor());
                 pepstmt.execute();
                 pepstmt.close();
-                System.out.println("Regist successfull.");
+                System.out.println("Regist successfull. Redirecting to login.");
                 sleep(2000);
+                login();
             }else{
                 System.out.println("User already existent.\nRedirecting to Login.");
                 sleep(2000);
@@ -856,7 +973,7 @@ public class Main {
         if(user.getEditor() == 1){
 
             System.out.println("-----ADD MUSIC-----");
-            music_id = get_id("Musics");
+            music_id = get_id("Musics","music_id");
             System.out.println("Music ID: "+music_id);
             System.out.printf("Title: ");
             title = scan.nextLine();
@@ -896,11 +1013,13 @@ public class Main {
 
         }else{
             System.out.println("You have to be an editor to change database info.");
+            sleep(1000);
+            main_menu();
         }
 
     }
 
-    public static void insert_artist() throws SQLException, InterruptedException {
+    public static void insert_artist() throws SQLException, InterruptedException, IOException {
 
         String artistic_name, nome, origin, biography, concertos;
         int active_years;
@@ -960,6 +1079,8 @@ public class Main {
             sleep(2000);
         } else {
             System.out.println("You have to be an editor to change database info.");
+            sleep(1000);
+            main_menu();
         }
     }
 
@@ -977,7 +1098,7 @@ public class Main {
         if(user.getEditor() == 1){
 
             System.out.println("-----ADD ALBUM-----");
-            album_id = get_id("Albums");
+            album_id = get_id("Albums","album_id");
             System.out.println("Album ID: "+album_id);
             System.out.printf("Title: ");
             title = scan.nextLine();
@@ -1015,6 +1136,8 @@ public class Main {
 
         }else{
             System.out.println("You have to be an editor to change database info.");
+            sleep(1000);
+            main_menu();
         }
 
     }
@@ -1027,7 +1150,9 @@ public class Main {
         PreparedStatement pepstmt;
         clearConsole();
         System.out.println("-----ASSOCIATE COMPOSER-----\n");
-        System.out.println("\n ** Select 0 to go back to main menu **\n");
+        System.out.println("\n ** Select 0 to go back to main menu **");
+        System.out.println("** Select -1 to skip this association **\n");
+
 
         for(int i = 0; i < artists.size(); i++){
             System.out.println("Artist ["+(i+1)+"] : "+artists.get(i).getArtistic_name());
@@ -1040,7 +1165,7 @@ public class Main {
                 ind = Integer.parseInt(op);
             }while(ind < 0 && ind > artists.size());
 
-            if(ind != 0){
+            if(ind > 0){
                 pepstmt = connection.prepareStatement("INSERT INTO \""+table+"\"(" +
                         ""+id_type+", artistic_name)" +
                         "VALUES (?, ?);");
@@ -1049,9 +1174,10 @@ public class Main {
                 pepstmt.execute();
             }
 
-        }while(ind != 0);
-
-        back_to_menu();
+        }while(ind != 0 && ind != -1);
+        if(ind == 0){
+            back_to_menu();
+        }
     }
 
     public static void associate_label(int id, String table, String id_type) throws SQLException, IOException, InterruptedException {
@@ -1062,7 +1188,8 @@ public class Main {
         PreparedStatement pepstmt;
         clearConsole();
         System.out.println("-----ASSOCIATE LABEL-----\n");
-        System.out.println("\n ** Select 0 to go back to main menu **\n");
+        System.out.println("\n ** Select 0 to go back to main menu **");
+        System.out.println("** Select -1 to skip this association **\n");
 
         for(int i = 0; i < labels.size(); i++){
             System.out.println("Label ["+(i+1)+"] : "+labels.get(i).getLabel_name());
@@ -1075,7 +1202,7 @@ public class Main {
                 ind = Integer.parseInt(op);
             }while(ind < 0 && ind > labels.size());
 
-            if(ind != 0){
+            if(ind > 0){
                 pepstmt = connection.prepareStatement("INSERT INTO \""+table+"\"(" +
                         ""+id_type+", label)" +
                         "VALUES (?, ?);");
@@ -1084,9 +1211,10 @@ public class Main {
                 pepstmt.execute();
             }
 
-        }while(ind != 0);
-
-        back_to_menu();
+        }while(ind != 0 && ind != -1);
+        if(ind == 0){
+            back_to_menu();
+        }
     }
 
     public static void associate_genre(int id, String table, String id_type) throws SQLException, IOException, InterruptedException {
@@ -1110,7 +1238,7 @@ public class Main {
                 ind = Integer.parseInt(op);
             }while(ind < 0 && ind > genres.size());
 
-            if(ind != 0){
+            if(ind > 0){
                 pepstmt = connection.prepareStatement("INSERT INTO \""+table+"\"(" +
                         ""+id_type+", genre)" +
                         "VALUES (?, ?);");
@@ -1119,9 +1247,10 @@ public class Main {
                 pepstmt.execute();
             }
 
-        }while(ind != 0);
-
-        back_to_menu();
+        }while(ind != 0 && ind != -1);
+        if(ind == 0){
+            back_to_menu();
+        }
     }
 
     public static void associate_music_album() throws SQLException {
@@ -1167,7 +1296,7 @@ public class Main {
         PreparedStatement pepstmt;
         clearConsole();
         System.out.println("----ADD CRITIC----\n");
-        critic_id = get_id(table);
+        critic_id = get_id(table,"critic_id");
         System.out.println("Critic number "+critic_id);
         System.out.printf("Write a critic, be nice: ");
         critic = scan.nextLine();
@@ -1187,12 +1316,55 @@ public class Main {
 
     }
 
-    public static int get_id(String table) throws SQLException {
+    public static void delete_account() throws InterruptedException, SQLException, IOException {
+
+        ArrayList<Playlist> playlists;
+        String choice = "";
+        PreparedStatement pepstmt;
+        clearConsole();
+        System.out.println("----DELETE ACCOUNT----");
+        System.out.println("\nAre you sure you want to delete you account? (y / n)\n");
+        do {
+            System.out.printf("-> ");
+            choice = scan.nextLine();
+        }while(!choice.toUpperCase().equals("Y") && !choice.toUpperCase().equals("N"));
+
+        if(choice.toUpperCase().equals("Y")){
+
+            playlists = get_playlists(2);
+            for(int i = 0; i < playlists.size();i++){
+                pepstmt = connection.prepareStatement("DELETE FROM \"Playlists_Musics\" WHERE playlist_id ="+playlists.get(i).getPlaylist_id()+";");
+                pepstmt.execute();
+            }
+            pepstmt = connection.prepareStatement("DELETE FROM \"Album_Critics\" WHERE email = '"+user.getUsername()+"';");
+            pepstmt.execute();
+            pepstmt = connection.prepareStatement("DELETE FROM \"Music_Critics\" WHERE email = '"+user.getUsername()+"';");
+            pepstmt.execute();
+            pepstmt = connection.prepareStatement("DELETE FROM \"Playlists\" WHERE email = '"+user.getUsername()+"';");
+            pepstmt.execute();
+            pepstmt = connection.prepareStatement("DELETE FROM \"Users\" WHERE email = '"+user.getUsername()+"';");
+            pepstmt.execute();
+            pepstmt.close();
+            System.out.println("All information deleted succesfully. See you soon :(");
+            sleep(1000);
+            System.exit(1);
+
+        }else{
+            System.out.println("Good you choose to stay. :)\n");
+            sleep(2000);
+            main_menu();
+        }
+
+    }
+
+    public static int get_id(String table,String id_type) throws SQLException {
 
         int id = 0;
-        res = stmt.executeQuery("SELECT COUNT(*) FROM \""+table+"\";");
-        if(res.next()){
-            id = res.getInt(1);
+        res = stmt.executeQuery("SELECT \""+table+"\"."+id_type+" FROM \""+table+"\";");
+        while(res.next()){
+            if(id < res.getInt(1)){
+                id = res.getInt(1);
+            }
         }
         return id+1;
     }
@@ -1220,6 +1392,7 @@ public class Main {
             System.out.println("\n");
         }
     }
+
 
 }
 
