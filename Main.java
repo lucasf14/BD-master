@@ -30,7 +30,7 @@ public class Main {
 
         System.out.println("----WELCOME TO DROPMUSIC----");
         System.out.println("");
-        System.out.println("1: Regist");
+        System.out.println("1: Register");
         System.out.println("2: Login");
 
 
@@ -209,7 +209,7 @@ public class Main {
         int idpi;
         int id;
         for(int i = 0; i < albums.size(); i++){
-            System.out.println("Album ["+(i+1)+"] "+albums.get(i).getTitle()+" by "+albums.get(i).artist);
+            System.out.println("Album ["+(i+1)+"] "+albums.get(i).getTitle());
         }
         System.out.printf("\nOption: ");
         option = scan.nextLine();
@@ -309,7 +309,7 @@ public class Main {
             }
         }
 
-        System.out.printf("\nWich playlist would you like to delete?\n");
+        System.out.printf("\nWhich playlist would you like to delete?\n");
         do {
             System.out.printf("-> ");
             playlist = scan.nextLine();
@@ -500,7 +500,7 @@ public class Main {
                     "WHERE \"Musics\".music_id = \"Labels_Music\".music_id " +
                     "AND \"Musics\".title = '"+musicList.get(select).getTitle()+"';");
             while(res.next()){
-                System.out.printf(" "+res.getString(2));
+                System.out.printf(" "+res.getString(2)+";");
             }
             System.out.println("\n");
             System.out.println("DURATION: "+musicList.get(select).getDuration()+" seconds"+"\n");
@@ -595,30 +595,30 @@ public class Main {
             System.out.println("\n----ALBUM INFORMATION---- "+"\n");
             System.out.println("TITLE: "+albumList.get(select).getTitle()+"\n");
             System.out.printf("GENRE/S: ");
-            res = stmt.executeQuery("SELECT \"Musics\".title, \"Genres_Music\".genre " +
-                    "FROM \"Musics\",\"Genres_Music\" " +
-                    "WHERE \"Musics\".music_id = \"Genres_Music\".music_id " +
-                    "AND \"Musics\".title = '"+albumList.get(select).getTitle()+"';");
+            res = stmt.executeQuery("SELECT \"Albums\".title, \"Genres_Album\".genre " +
+                    "FROM \"Albums\",\"Genres_Album\" " +
+                    "WHERE \"Albums\".album_id = \"Genres_Album\".album_id " +
+                    "AND \"Albums\".title = '"+albumList.get(select).getTitle()+"';");
             while(res.next()){
-                System.out.printf(" "+res.getString(2));
+                System.out.printf(" "+res.getString(2)+";");
             }
             System.out.println("\n");
             System.out.printf("COMPOSERS/S: ");
-            res = stmt.executeQuery("SELECT \"Musics\".title, \"Composers\".artistic_name " +
-                    "FROM \"Musics\",\"Composers\"\n " +
-                    "WHERE \"Musics\".music_id = \"Composers\".music_id " +
-                    "AND \"Musics\".title = '"+albumList.get(select).getTitle()+"';");
+            res = stmt.executeQuery("SELECT \"Albums\".title, \"Composers_Album\".artistic_name " +
+                    "FROM \"Albums\",\"Composers_Album\"\n " +
+                    "WHERE \"Albums\".album_id = \"Composers_Album\".album_id " +
+                    "AND \"Albums\".title = '"+albumList.get(select).getTitle()+"';");
             while(res.next()){
-                System.out.printf(" "+res.getString(2));
+                System.out.printf(" "+res.getString(2)+";");
             }
             System.out.println("\n");
             System.out.printf("LABEL/S: ");
-            res = stmt.executeQuery("SELECT \"Musics\".title, \"Labels_Music\".label " +
-                    "FROM \"Musics\",\"Labels_Music\"\n " +
-                    "WHERE \"Musics\".music_id = \"Labels_Music\".music_id " +
-                    "AND \"Musics\".title = '"+albumList.get(select).getTitle()+"';");
+            res = stmt.executeQuery("SELECT \"Albums\".title, \"Labels_Album\".label " +
+                    "FROM \"Albums\",\"Labels_Album\"\n " +
+                    "WHERE \"Albums\".album_id = \"Labels_Album\".album_id " +
+                    "AND \"Albums\".title = '"+albumList.get(select).getTitle()+"';");
             while(res.next()){
-                System.out.printf(" "+res.getString(2));
+                System.out.printf(" "+res.getString(2)+";");
             }
             System.out.println("\n");
             System.out.println("DURATION: "+albumList.get(select).getDuration()+" seconds"+"\n");
@@ -635,7 +635,7 @@ public class Main {
                     "WHERE \"Albums\".album_id = \"Album_Critics\".album_id " +
                     "AND \"Albums\".title = '"+albumList.get(select).getTitle()+"';");
             while(res.next()){
-                System.out.printf(" "+res.getString(2)+" ;");
+                System.out.printf(" "+res.getString(2)+"; ");
             }
             System.out.println("\n");
             System.out.printf("MUSIC/S: ");
@@ -644,12 +644,12 @@ public class Main {
                     "WHERE \"Musics\".music_id = \"Albums_Music\".music_id\n " +
                     "AND \"Albums_Music\".album_id = "+albumList.get(select).getAlbum_id()+";");
             while(res.next()){
-                System.out.printf(" "+res.getString(1)+" ;");
+                System.out.printf(" "+res.getString(1)+";");
             }
             System.out.println("\n");
 
             do {
-                System.out.println("Would you like to leave a critic? (y/n)");
+                System.out.println("Would you like to write a critic? (y/n)");
                 System.out.printf("-> ");
                 op = scan.nextLine();
             }while(!op.toUpperCase().equals("Y") && !op.toUpperCase().equals("N"));
@@ -977,7 +977,7 @@ public class Main {
                 sleep(1000);
                 login();
             }else if (found == 0){
-                System.out.println("Account is inexistent. Redirecting to Regist.");
+                System.out.println("Account is inexistent. Redirecting to Register.");
                 sleep(1000);
                 register();
             }
@@ -1001,7 +1001,7 @@ public class Main {
         PreparedStatement pepstmt;
         Scanner scan = new Scanner(System.in);
         clearConsole();
-        System.out.println("-----REGIST-----");
+        System.out.println("-----REGISTER-----");
         try {
 
 
@@ -1025,7 +1025,7 @@ public class Main {
                 pepstmt.setInt(4,user.getEditor());
                 pepstmt.execute();
                 pepstmt.close();
-                System.out.println("Regist successfull. Redirecting to login.");
+                System.out.println("Register successful. Redirecting to login.");
                 sleep(2000);
                 login();
             }else{
@@ -1048,7 +1048,7 @@ public class Main {
         stmt.execute("UPDATE  \"Users\"" +
                 "SET Permit = 1"+
                 "WHERE Email = \'"+user+"\';");
-        System.out.println("Permission changed successfuly.");
+        System.out.println("Permission changed successfully.");
 
     }
 
@@ -1064,7 +1064,7 @@ public class Main {
 
         if(user.getEditor() == 1){
 
-            System.out.println("Wich user do you want to provide editor permission?");
+            System.out.println("Which user do you want to provide editor permission?");
             ResultSet res = stmt.executeQuery("SELECT Email,Permit FROM \"Users\"");
 
             while(res.next()){
@@ -1137,7 +1137,7 @@ public class Main {
             pepstmt.setString(8, artist);
             pepstmt.execute();
             pepstmt.close();
-            System.out.println("Music insert successfull.");
+            System.out.println("Music insert successful.");
 
             associate_composer(music_id,"Composers","music_id");
             associate_label(music_id,"Labels_Music","music_id");
@@ -1274,7 +1274,7 @@ public class Main {
             pepstmt.execute();
             pepstmt.close();
 
-            System.out.println("Album insert successfull.");
+            System.out.println("Album insert successful.");
 
             associate_composer(album_id,"Composer_Album","album_id");
             associate_label(album_id,"Labels_Album","album_id");
@@ -1316,7 +1316,7 @@ public class Main {
                 ind = Integer.parseInt(op);
             }while(ind < 0 && ind > artists.size());
 
-            if(ind > 0){
+            if(ind > 0 && ind <= artists.size() ){
 
                 set = stmt.executeQuery("SELECT COUNT(*) FROM \""+table+"\" WHERE "+id_type+" = "+id+" AND artistic_name = '"+artists.get(ind-1).getArtistic_name()+"';");
                 if(set.next()){
@@ -1367,7 +1367,7 @@ public class Main {
                 ind = Integer.parseInt(op);
             }while(ind < 0 && ind > labels.size());
 
-            if(ind > 0){
+            if(ind > 0 && ind <= labels.size()){
                 set = stmt.executeQuery("SELECT COUNT(*) FROM \""+table+"\" WHERE " + id_type + " = " + id + " AND label = '" + labels.get(ind - 1).getLabel_name() + "';");
                 if(set.next()){
                     lines = set.getInt(1);
@@ -1415,7 +1415,7 @@ public class Main {
                 ind = Integer.parseInt(op);
             }while(ind < 0 && ind > genres.size());
 
-            if(ind > 0){
+            if(ind > 0 && ind <= genres.size()){
 
                 set = stmt.executeQuery("SELECT COUNT(*) FROM \""+table+"\" WHERE " + id_type + " = " + id + " AND genre = '" + genres.get(ind - 1).getGenre() + "';");
                 if(set.next()){
@@ -1472,19 +1472,24 @@ public class Main {
         for(int i = 0; i < albums.size(); i++){
             System.out.println("Album ["+(i+1)+"] : "+albums.get(i).getTitle() +" by "+albums.get(i).artist);
         }
+        do{
+            System.out.printf("\nSelect album to associate: ");
+            ap = scan.nextLine();
+            apid = Integer.parseInt(ap) - 1;
+        }
+        while(apid < 0 || apid >= albums.size());
 
-        System.out.printf("\nSelect album to associate: ");
-        ap = scan.nextLine();
-        apid = Integer.parseInt(ap) - 1;
 
         System.out.println("\n");
         for(int i = 0; i < music.size(); i++){
             System.out.println("Music ["+(i+1)+"] : "+music.get(i).getTitle() +" by "+music.get(i).getArtist());
         }
-
-        System.out.printf("\nSelect Music to associate: ");
-        mp = scan.nextLine();
-        mpid = Integer.parseInt(mp) - 1;
+        do {
+            System.out.printf("\nSelect Music to associate: ");
+            mp = scan.nextLine();
+            mpid = Integer.parseInt(mp) - 1;
+        }
+        while(mpid < 0 || mpid >= music.size());
 
         set = stmt.executeQuery("SELECT COUNT(*)\n" +
                 "      FROM \"Albums_Music\"\n" +
@@ -1504,7 +1509,7 @@ public class Main {
             System.out.println("Associated "+music.get(mpid).getTitle()+" to "+albums.get(apid).getTitle());
             sleep(2000);
         }else{
-            System.out.println("Album and music are already associated to eachother.");
+            System.out.println("Album and music are already associated to each other.");
             sleep(1000);
         }
         main_menu();
