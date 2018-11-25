@@ -803,13 +803,11 @@ public class Main {
                     pepstmt.setInt(1,lista.get(op-1).getPlaylist_id());
                     pepstmt.setInt(2,musics.get(mp-1).getMusic_id());
                     pepstmt.execute();
-                }else{
-                    pepstmt = connection.prepareStatement("UPDATE \"Playlists_Musics\"\n" +
-                            "SET playlist_id= "+musics.get(mp-1).getMusic_id()+", music_id= "+lista.get(op-1).getPlaylist_id()+" " +
-                            "WHERE music_id= \"+lista.get(op-1).getPlaylist_id()+\";");
-                }
+                    pepstmt.close();
 
-                pepstmt.close();
+                }else{
+                    System.out.println("This music is already in your playlist.");
+                }
                 System.out.println("Added "+musics.get(mp-1).getTitle()+" to "+lista.get(op-1).getTitulo());
                 sleep(2000);
                 main_menu();
