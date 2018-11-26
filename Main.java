@@ -1,15 +1,13 @@
-import com.mysql.cj.jdbc.util.ResultSetUtil;
 import org.postgresql.util.PSQLException;
-
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
+import static java.lang.Thread.sleep;
 
 /**
  * author: André Leite
  */
 
-import static java.lang.Thread.sleep;
 
 
 @SuppressWarnings("ALL")
@@ -58,30 +56,32 @@ public class Main {
         String text = "";
         clearConsole();
         System.out.println("______________________\n");
-        System.out.println("_____FAKE SPOTIFY_____\n");
+        System.out.println("_______DROPMUSIC______\n");
         System.out.println("______________________\n\n");
 
         System.out.println("----MAIN MENU----\n");
         System.out.println("1: Search Musics");
         System.out.println("2: Search Albums");
         System.out.println("3: Search Artists");
-        System.out.println("4: My Playlists");
-        System.out.println("5: Create Playlist");
-        System.out.println("6: Add Music to Playlist");
-        System.out.println("7: Search Public playlists");
-        System.out.println("8: See your critics");
-        System.out.println("9: Delete Playlist");
-        System.out.println("10: Delete Account\n");
+        System.out.println("4: Top 5 Most Searched Musics");
+        System.out.println("5: My Playlists");
+        System.out.println("6: Create Playlist");
+        System.out.println("7: Add Music to Playlist");
+        System.out.println("8: Search Public playlists");
+        System.out.println("9: See your critics");
+        System.out.println("10: Delete Playlist");
+        System.out.println("11: Delete Account\n");
         System.out.println("----EDITOR OPTIONS-----\n");
-        System.out.println("11: Insert Musics");
-        System.out.println("12: Insert Albums");
-        System.out.println("13: Insert Artists");
-        System.out.println("14: Insert Genre");
-        System.out.println("15: Insert Label");
-        System.out.println("16: Edit Info");
-        System.out.println("17: Give Permissions\n");
+        System.out.println("12: Insert Musics");
+        System.out.println("13: Insert Albums");
+        System.out.println("14: Insert Artists");
+        System.out.println("15: Insert Genre");
+        System.out.println("16: Insert Label");
+        System.out.println("17: Edit Info");
+        System.out.println("18: Give Permissions");
+        System.out.println("19: List all users\n");
         System.out.println("----ADMIN OPTIONS-----\n");
-        System.out.println("18: Terminate DataBase\n");
+        System.out.println("20: Terminate DataBase\n");
         System.out.println("\n0: EXIT\n");
 
         System.out.printf("Option: ");
@@ -114,48 +114,54 @@ public class Main {
                 searchArtist(text);
                 break;
             case "4":
-                my_playlists();
+                show_top_five();
                 break;
             case "5":
-                create_playlist();
+                my_playlists();
                 break;
             case "6":
-                add_music_to_playlist();
+                create_playlist();
                 break;
             case "7":
-                all_playlists();
+                add_music_to_playlist();
                 break;
             case "8":
-                my_critics();
+                all_playlists();
                 break;
             case "9":
-                delete_playlist();
+                my_critics();
                 break;
             case "10":
-                delete_account();
+                delete_playlist();
                 break;
             case "11":
-                insert_music();
+                delete_account();
                 break;
             case "12":
-                insert_album();
+                insert_music();
                 break;
             case "13":
-                insert_artist();
+                insert_album();
                 break;
             case "14":
-                insert_genre();
+                insert_artist();
                 break;
             case "15":
-                insert_label();
+                insert_genre();
                 break;
             case "16":
-                edit();
+                insert_label();
                 break;
             case "17":
-                give_permits();
+                edit();
                 break;
             case "18":
+                give_permits();
+                break;
+            case "19":
+                show_all_users();
+                break;
+            case "20":
                 if(user.getUsername().toUpperCase().equals("ADMIN")){
                     init.terminate_database(stmt,connection);
                 }else{
@@ -474,6 +480,43 @@ public class Main {
         return genres;
     }
 
+    public static void show_all_users() throws Exception {
+
+        String permission = "General User";
+        ResultSet set = null;
+        int i = 0;
+        set = stmt.executeQuery("SELECT Email, Nome, Permit FROM \"Users\";");
+        clearConsole();
+        System.out.println("----USERS----\n");
+        while(set.next()){
+            if(set.getInt(3) == 1){
+                permission = "Editor User";
+            }
+            System.out.println("User ["+(i+1)+"]\n Email: "+set.getString(1)+"\n Name: "+set.getString(2)+"\n Permission: "+permission+"\n");
+            permission = "General User";
+            i++;
+        }
+        back_to_menu();
+    }
+
+    public static void show_top_five() throws Exception {
+
+        int i = 0;
+        ResultSet set;
+        clearConsole();
+        System.out.println("----TOP 5 MOST SEARCHED MUSICS----\n");
+        set = stmt.executeQuery("SELECT Title,Views FROM \"Musics\" " +
+                "WHERE Views >= ANY (SELECT Views FROM \"Musics\") " +
+                "ORDER BY Views DESC LIMIT 5;");
+
+        while (set.next()){
+            System.out.println("Top "+(i+1)+" music: "+set.getString(1)+" with "+set.getInt(2)+" views");
+            i++;
+        }
+
+        back_to_menu();
+    }
+
     public static void searchMusic(String titleSearch) throws Exception {
 
         int select;
@@ -489,7 +532,6 @@ public class Main {
         if (musicList.isEmpty()){
             System.out.println("No results were found.\n");
             back_to_menu();
-
         }
         else{
             System.out.println("\nResults found: \n");
@@ -503,6 +545,10 @@ public class Main {
             scan.nextLine();
             select -= 1;
             clearConsole();
+
+            stmt.execute("UPDATE \"Musics\"\n" +
+                    "\tSET views="+(musicList.get(select).getUpvotes()+1)+"\n" +
+                    "\tWHERE music_id = "+musicList.get(select).getMusic_id()+";");
 
             System.out.println("\n----MUSIC INFORMATION----\n");
             System.out.println("TITLE: "+musicList.get(select).getTitle()+"\n");
@@ -521,7 +567,7 @@ public class Main {
                     "WHERE \"Musics\".music_id = \"Composers\".music_id " +
                     "AND \"Musics\".title = '"+musicList.get(select).getTitle()+"';");
             while(res.next()){
-                System.out.printf(" "+res.getString(2));
+                System.out.printf(" "+res.getString(2)+";");
             }
             System.out.println("\n");
             System.out.printf("LABEL/S: ");
@@ -535,7 +581,7 @@ public class Main {
             System.out.println("\n");
             System.out.println("DURATION: "+musicList.get(select).getDuration()+" seconds"+"\n");
             System.out.println("LAUNCH DATE: "+musicList.get(select).getLaunch_date()+"\n");
-            System.out.println("UPVOTES: "+musicList.get(select).getUpvotes()+"\n");
+            System.out.println("VIEWS: "+musicList.get(select).getUpvotes()+"\n");
             System.out.println("LYRICS: "+musicList.get(select).getLyrics()+"\n");
             System.out.println("FORMAT: "+musicList.get(select).getFormat()+"\n");
             System.out.println("ARTIST: "+musicList.get(select).getArtist()+"\n");
@@ -778,8 +824,8 @@ public class Main {
                 "AND \"Music_Critics\".email = '"+user.getUsername()+"';");
 
         clearConsole();
-        System.out.println("----MUSICS CRITICS----\n");
         System.out.println("User: "+user.getUsername()+"\n");
+        System.out.println("----MUSICS CRITICS----\n");
 
         while(set.next()){
             System.out.println("CRITIC : "+set.getString(2)+" to "+set.getString(3));
@@ -1129,7 +1175,7 @@ public class Main {
         String title;
         int duration;
         String launch_date;
-        int upvotes = 0;
+        int views = 0;
         String lyrics;
         String format;
         String artist;
@@ -1156,13 +1202,13 @@ public class Main {
             artist = scan.nextLine();
 
             pepstmt = connection.prepareStatement("INSERT INTO \"Musics\"("+
-                    "music_id, title, duration, launch_date, upvotes, lyrics, format, singer)" +
+                    "music_id, title, duration, launch_date, views, lyrics, format, singer)" +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
             pepstmt.setInt(1,music_id);
             pepstmt.setString(2,title);
             pepstmt.setInt(3,duration);
             pepstmt.setString(4,launch_date);
-            pepstmt.setInt(5,upvotes);
+            pepstmt.setInt(5,views);
             pepstmt.setString(6,lyrics);
             pepstmt.setString(7, format);
             pepstmt.setString(8, artist);

@@ -99,7 +99,7 @@ public class Init {
                 "Title VARCHAR(255) NOT NULL," +
                 "Duration INT NOT NULL," +
                 "Launch_Date VARCHAR(255) NOT NULL," +
-                "Upvotes INT NOT NULL,"+
+                "Views INT NOT NULL,"+
                 "Lyrics VARCHAR(255) NOT NULL,"+
                 "Format VARCHAR(255) NOT NULL);");
 
