@@ -68,20 +68,21 @@ public class Main {
         System.out.println("6: Create Playlist");
         System.out.println("7: Add Music to Playlist");
         System.out.println("8: Search Public playlists");
-        System.out.println("9: See your critics");
-        System.out.println("10: Delete Playlist");
-        System.out.println("11: Delete Account\n");
+        System.out.println("9: Share music");
+        System.out.println("10: See your critics");
+        System.out.println("11: Delete Playlist");
+        System.out.println("12: Delete Account\n");
         System.out.println("----EDITOR OPTIONS-----\n");
-        System.out.println("12: Insert Musics");
-        System.out.println("13: Insert Albums");
-        System.out.println("14: Insert Artists");
-        System.out.println("15: Insert Genre");
-        System.out.println("16: Insert Label");
-        System.out.println("17: Edit Info");
-        System.out.println("18: Give Permissions");
-        System.out.println("19: List all users\n");
+        System.out.println("13: Insert Musics");
+        System.out.println("14: Insert Albums");
+        System.out.println("15: Insert Artists");
+        System.out.println("16: Insert Genre");
+        System.out.println("17: Insert Label");
+        System.out.println("18: Edit Info");
+        System.out.println("19: Give Permissions");
+        System.out.println("20: List all users\n");
         System.out.println("----ADMIN OPTIONS-----\n");
-        System.out.println("20: Terminate DataBase\n");
+        System.out.println("21: Terminate DataBase\n");
         System.out.println("\n0: EXIT\n");
 
         System.out.printf("Option: ");
@@ -129,39 +130,48 @@ public class Main {
                 all_playlists();
                 break;
             case "9":
-                my_critics();
+                share_music();
                 break;
             case "10":
-                delete_playlist();
+                my_critics();
                 break;
             case "11":
-                delete_account();
+                delete_playlist();
                 break;
             case "12":
-                insert_music();
+                delete_account();
                 break;
             case "13":
-                insert_album();
+                insert_music();
                 break;
             case "14":
-                insert_artist();
+                insert_album();
                 break;
             case "15":
-                insert_genre();
+                insert_artist();
                 break;
             case "16":
-                insert_label();
+                insert_genre();
                 break;
             case "17":
-                edit();
+                insert_label();
                 break;
             case "18":
-                give_permits();
+                edit();
                 break;
             case "19":
-                show_all_users();
+                give_permits();
                 break;
             case "20":
+                if(user.getEditor() == 1){
+                    show_all_users();
+                }else{
+                    System.out.println("You have to be an editor to change database info.");
+                    sleep(1000);
+                    main_menu();
+                }
+                break;
+            case "21":
                 if(user.getUsername().toUpperCase().equals("ADMIN")){
                     init.terminate_database(stmt,connection);
                 }else{
@@ -387,6 +397,10 @@ public class Main {
 
             set = stmt.executeQuery("SELECT * FROM \"Playlists\" WHERE email = \'"+user.getUsername()+"\';");
 
+        }else if(flag == 3){ /* playlists menos a do proprio utilizador */
+
+            set = stmt.executeQuery("SELECT * FROM \"Playlists\" WHERE email != \'"+user.getUsername()+"\';");
+
         }
 
         while(set.next()){
@@ -523,7 +537,7 @@ public class Main {
         Music music;
         String op;
         ArrayList<Music> musicList = new ArrayList<>();
-        String query = "select * from \"Musics\" WHERE title LIKE '%"+titleSearch+"%';";
+        String query = "SELECT * from \"Musics\" WHERE title LIKE '%"+titleSearch+"%';";
         ResultSet res = stmt.executeQuery(query);
         while(res.next()) {
             music = new Music(res.getInt(1), res.getString(2), res.getInt(3), res.getString(4), res.getInt(5), res.getString(6), res.getString(7), res.getString(8));
@@ -586,12 +600,12 @@ public class Main {
             System.out.println("FORMAT: "+musicList.get(select).getFormat()+"\n");
             System.out.println("ARTIST: "+musicList.get(select).getArtist()+"\n");
             System.out.printf("CRITIC/S: ");
-            res = stmt.executeQuery("SELECT \"Musics\".title, \"Music_Critics\".critic\n" +
+            res = stmt.executeQuery("SELECT \"Musics\".title, \"Music_Critics\".critic, \"Music_Critics\".points\n" +
                     "FROM \"Musics\",\"Music_Critics\"\n" +
                     "WHERE \"Musics\".music_id = \"Music_Critics\".music_id " +
                     "AND \"Musics\".title = '"+musicList.get(select).getTitle()+"';");
             while(res.next()){
-                System.out.printf(" "+res.getString(2)+" ;");
+                System.out.printf(" "+res.getString(3)+" out of 10,  "+res.getString(2)+" ;");
             }
             System.out.println("\n");
             System.out.printf("ALBUM/S: ");
@@ -627,7 +641,7 @@ public class Main {
         Album album;
         String art;
         ArrayList<Album> albumList = new ArrayList<>();
-        String query = "select * from \"Albums\" WHERE title LIKE '%"+albumSearch+"%';";
+        String query = "SELECT * from \"Albums\" WHERE title LIKE '%"+albumSearch+"%';";
         ResultSet res = stmt.executeQuery(query);
         ResultSet set ;
 
@@ -706,12 +720,12 @@ public class Main {
                 System.out.println("ARTIST: "+albumList.get(select).artist+"\n");
             }
             System.out.printf("CRITIC/S: ");
-            res = stmt.executeQuery("SELECT \"Albums\".title, \"Album_Critics\".critic\n" +
+            res = stmt.executeQuery("SELECT \"Albums\".title, \"Album_Critics\".critic,  \"Album_Critics\".points\n" +
                     "FROM \"Albums\",\"Album_Critics\"\n" +
                     "WHERE \"Albums\".album_id = \"Album_Critics\".album_id " +
                     "AND \"Albums\".title = '"+albumList.get(select).getTitle()+"';");
             while(res.next()){
-                System.out.printf(" "+res.getString(2)+"; ");
+                System.out.printf(" "+res.getString(2)+"out of 10, "+res.getString(2)+"; ");
             }
             System.out.println("\n");
             System.out.printf("MUSIC/S: ");
@@ -744,7 +758,7 @@ public class Main {
         Artist artist;
         String band = "";
         ArrayList<Artist> artistList = new ArrayList<>();
-        String query = "select * from \"Artists\" WHERE artistic_name LIKE '%"+artistSearch+"%';";
+        String query = "SELECT * from \"Artists\" WHERE artistic_name LIKE '%"+artistSearch+"%';";
         ResultSet res = stmt.executeQuery(query);
         ResultSet set;
         while(res.next()) {
@@ -817,7 +831,7 @@ public class Main {
 
         ResultSet set;
 
-        set = stmt.executeQuery("SELECT \"Users\".email, \"Music_Critics\".critic, \"Musics\".title " +
+        set = stmt.executeQuery("SELECT \"Users\".email, \"Music_Critics\".critic, \"Musics\".title, \"Music_Critics\".points " +
                 "FROM \"Users\",\"Music_Critics\",\"Musics\"" +
                 "WHERE \"Users\".email = \"Music_Critics\".email " +
                 "AND \"Musics\".music_id = \"Music_Critics\".music_id " +
@@ -828,19 +842,19 @@ public class Main {
         System.out.println("----MUSICS CRITICS----\n");
 
         while(set.next()){
-            System.out.println("CRITIC : "+set.getString(2)+" to "+set.getString(3));
+            System.out.println("POINTS: "+set.getInt(4)+" out of 10\nCRITIC : "+set.getString(2)+" to "+set.getString(3));
         }
 
         System.out.println("\n----ALBUM CRITICS----\n");
 
-        set = stmt.executeQuery("SELECT \"Users\".email, \"Album_Critics\".critic, \"Albums\".title " +
+        set = stmt.executeQuery("SELECT \"Users\".email, \"Album_Critics\".critic, \"Albums\".title, \"Album_Critics\".points " +
                 "FROM \"Users\",\"Album_Critics\",\"Albums\"" +
                 "WHERE \"Users\".email = \"Album_Critics\".email " +
                 "AND \"Albums\".album_id = \"Album_Critics\".album_id " +
                 "AND \"Album_Critics\".email = '"+user.getUsername()+"';");
 
         while(set.next()){
-            System.out.println("CRITIC : "+set.getString(2)+" to "+set.getString(3));
+            System.out.println("POINTS: "+set.getInt(4)+" out of 10\nCRITIC : "+set.getString(2)+" to "+set.getString(3));
         }
 
         back_to_menu();
@@ -960,11 +974,116 @@ public class Main {
                     pepstmt.setInt(2,musics.get(mp-1).getMusic_id());
                     pepstmt.execute();
                     pepstmt.close();
+                    System.out.println("Added "+musics.get(mp-1).getTitle()+" to "+lista.get(op-1).getTitulo());
 
                 }else{
                     System.out.println("This music is already in your playlist.");
                 }
-                System.out.println("Added "+musics.get(mp-1).getTitle()+" to "+lista.get(op-1).getTitulo());
+                sleep(2000);
+                main_menu();
+            }
+        }
+    }
+
+    public static void share_music() throws Exception {
+
+        int i = 0;
+        int j = 0;
+        String op;
+        String mp;
+        int opi;
+        int mpi;
+        int check = 0;
+        ArrayList<Playlist> playlists = get_playlists(3);
+        ArrayList<Music> musics = new ArrayList<>();
+        ArrayList<Music> personal_musics = get_musics();;
+        PreparedStatement pepstmt;
+        ResultSet set;
+        set = stmt.executeQuery("SELECT \"Playlists_Musics\".music_id FROM \"Playlists_Musics\",\"Playlists\"\n" +
+                "WHERE \"Playlists_Musics\".playlist_id = \"Playlists\".playlist_id AND email = '"+user.getUsername()+"';");
+        while(set.next()){
+            for(i = 0; i < personal_musics.size();i++){
+                if(personal_musics.get(i).getMusic_id() == set.getInt(1)){
+                    for (j = 0; j < musics.size(); j++){
+                        if(personal_musics.get(i).getMusic_id() == musics.get(j).getMusic_id()){
+                            check++;
+                        }
+                    }
+                    if(check == 0){
+                        musics.add(personal_musics.get(i));
+                    }
+                    check = 0;
+                }
+            }
+        }
+
+        clearConsole();
+        System.out.println("----MUSICS IN YOUR PLAYLISTS----");
+        System.out.println("** Select 0 to go back to main menu **\n");
+        System.out.println();
+        for(i = 0; i<musics.size(); i++) {
+            System.out.println("Music [" + (i+1) + "] : " + musics.get(i).getTitle() + " by "+musics.get(i).getArtist());
+        }
+        if(musics.size() == 0){
+            System.out.println("You have no musics to share.");
+            sleep(2000);
+            main_menu();
+        }else{
+            do {
+                System.out.printf("\nSelect a music: ");
+                mp = scan.nextLine();
+                mpi = Integer.parseInt(mp);
+            }while(mpi < 0 || mpi > musics.size());
+
+            if(mpi != 0){
+                clearConsole();
+                System.out.println("----PUBLIC PLAYLISTS----");
+                System.out.println("** Select 0 to go back to main menu **\n");
+                System.out.println();
+                for(i = 0; i < playlists.size(); i++){
+                    try{
+                        System.out.println("Playlist ["+(i+1)+"]: "+playlists.get(i).getTitulo());
+                        set = stmt.executeQuery("SELECT \"Playlists\".titulo, \"Musics\".title" +
+                                " FROM \"Playlists\",\"Musics\",\"Playlists_Musics\" " +
+                                "WHERE \"Playlists\".playlist_id = \"Playlists_Musics\".playlist_id " +
+                                "AND \"Musics\".music_id = \"Playlists_Musics\".music_id " +
+                                "AND \"Playlists\".titulo = \'"+playlists.get(i).getTitulo()+"\';");
+                        while(set.next()){
+                            System.out.println("   Music ["+j+"] : "+set.getString(2));
+                            j++;
+                        }
+                        j = 1;
+                    }catch (PSQLException e){
+                        System.out.println("No musics");
+                    }
+                }
+
+                do {
+                    System.out.printf("\nSelect a playlist: ");
+                    op = scan.nextLine();
+                    opi = Integer.parseInt(mp);
+                }while(opi < 0 || opi > playlists.size());
+
+                set = stmt.executeQuery("SELECT COUNT(*) FROM \"Playlists_Musics\"" +
+                        " WHERE music_id = "+musics.get(mpi-1).getMusic_id()+"" +
+                        " AND playlist_id = "+playlists.get(opi-1).getPlaylist_id()+";");
+
+                if(set.next()) {
+                    if (set.getInt(1) < 1) {
+                        pepstmt = connection.prepareStatement("INSERT INTO \"Playlists_Musics\"(" +
+                                "playlist_id, music_id)" +
+                                "VALUES (?, ?);");
+                        pepstmt.setInt(1, playlists.get(opi - 1).getPlaylist_id());
+                        pepstmt.setInt(2, musics.get(mpi - 1).getMusic_id());
+                        pepstmt.execute();
+                        pepstmt.close();
+
+                    } else {
+                        System.out.println("\nMuisc already in this playlist.\n");
+                    }
+                }
+                back_to_menu();
+            }else{
                 sleep(2000);
                 main_menu();
             }
@@ -1673,22 +1792,29 @@ public class Main {
     public static void add_critic(int id, String table, String id_type) throws Exception {
 
         int critic_id;
+        int pontuation;
         String critic;
         PreparedStatement pepstmt;
         clearConsole();
         System.out.println("----ADD CRITIC----\n");
         critic_id = get_id(table,"critic_id");
         System.out.println("Critic number "+critic_id);
+        do{
+            System.out.println("Give a pontuation between 1 and 10: ");
+            pontuation = scan.nextInt();
+            scan.nextLine();
+        }while(pontuation < 1 || pontuation > 10);
         System.out.printf("Write a critic, be nice: ");
         critic = scan.nextLine();
 
         pepstmt = connection.prepareStatement("INSERT INTO public.\""+table+"\"(" +
-                "critic_id, critic, email, "+id_type+")" +
-                "VALUES (?, ?, ?, ?);");
+                "critic_id, critic, email, "+id_type+", points)" +
+                "VALUES (?, ?, ?, ?, ?);");
         pepstmt.setInt(1,critic_id);
         pepstmt.setString(2,critic);
         pepstmt.setString(3,user.getUsername());
         pepstmt.setInt(4,id);
+        pepstmt.setInt(5,pontuation);
         pepstmt.execute();
         pepstmt.close();
         System.out.println("Critic input successful.");

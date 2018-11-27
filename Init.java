@@ -111,11 +111,13 @@ public class Init {
 
         stmt.execute("CREATE TABLE IF NOT EXISTS \"Album_Critics\"(Critic_id INT PRIMARY KEY NOT NULL," +
                 "Critic VARCHAR(255) NOT NULL," +
+                "Points INT NOT NULL," +
                 "Email VARCHAR(255) REFERENCES \"Users\"(Email)," +
                 "Album_id INT REFERENCES \"Albums\"(Album_id));");
 
         stmt.execute("CREATE TABLE IF NOT EXISTS \"Music_Critics\"(Critic_id INT PRIMARY KEY NOT NULL," +
                 "Critic VARCHAR(255) NOT NULL," +
+                "Points INT NOT NULL," +
                 "Email VARCHAR(255) REFERENCES \"Users\"(Email)," +
                 "Music_id INT REFERENCES \"Musics\"(Music_id));");
 
