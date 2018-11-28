@@ -943,7 +943,7 @@ public class Main {
             }
         }
         back_to_menu();
-    }
+    } //21
 
     public static void all_playlists()throws Exception {
 
@@ -1483,7 +1483,7 @@ public class Main {
             System.out.printf("Next concerts: ");
             concertos = scan.nextLine();
 
-            set = stmt.executeQuery("SELECT COUNT(*) FROM \"Artists\" WHERE aristic_name = '"+artistic_name+"';");
+            set = stmt.executeQuery("SELECT COUNT(*) FROM \"Artists\" WHERE artistic_name = '"+artistic_name+"';");
             if(set.next()){
                 lines = set.getInt(1);
             }
