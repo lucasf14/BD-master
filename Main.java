@@ -250,30 +250,47 @@ public class Main {
         back_to_menu();
     }
 
-    public static int get_album_id(ArrayList<Album> albums){
+    public static int get_album_id(ArrayList<Album> albums) throws Exception {
         String option;
         int idpi;
-        int id;
+        int id = 0;
         for(int i = 0; i < albums.size(); i++){
             System.out.println("Album ["+(i+1)+"] "+albums.get(i).getTitle());
         }
-        System.out.printf("\nOption: ");
-        option = scan.nextLine();
-        idpi = Integer.parseInt(option);
-        id = albums.get(idpi-1).getAlbum_id();
+        try{
+            do{
+                System.out.printf("\nOption: ");
+                option = scan.nextLine();
+                idpi = Integer.parseInt(option);
+            }while(idpi <= 0 || idpi > albums.size());
+            id = albums.get(idpi-1).getAlbum_id();
+        }catch (NumberFormatException e){
+            System.out.println("Wrong input!");
+            sleep(1000);
+            main_menu();
+        }
+
         return id;
     }
 
-    public static int get_music_id(ArrayList<Music> musics){
+    public static int get_music_id(ArrayList<Music> musics) throws Exception {
         String option;
-        int idpi;
-        int id;
+        int idpi = 0;
+        int id = 0;
         for(int i = 0; i < musics.size(); i++){
             System.out.println("Music ["+(i+1)+"] "+musics.get(i).getTitle()+" by "+musics.get(i).getArtist());
         }
-        System.out.printf("\nOption: ");
-        option = scan.nextLine();
-        idpi = Integer.parseInt(option);
+        try{
+            do{
+                System.out.printf("\nOption: ");
+                option = scan.nextLine();
+                idpi = Integer.parseInt(option);
+            }while(idpi < 0 || idpi > musics.size());
+        }catch (NumberFormatException e){
+            System.out.println("Wrong input!");
+            sleep(1000);
+            main_menu();
+        }
         id = musics.get(idpi-1).getMusic_id();
         return id;
     }
@@ -293,7 +310,7 @@ public class Main {
 
         int playlist_id = get_id("Playlists","playlist_id");
         String playlist_name;
-        int privacy;
+        int privacy = 0;
         PreparedStatement pepstmt;
 
         clearConsole();
@@ -301,9 +318,17 @@ public class Main {
         System.out.println("Playlist ID: "+playlist_id);
         System.out.printf("Title: ");
         playlist_name = scan.nextLine();
-        System.out.printf("Privacy ( 0 - Public | 1 - Private ) : ");
-        privacy = scan.nextInt();
-        scan.nextLine();
+        try{
+            do{
+                System.out.printf("Privacy ( 0 - Public | 1 - Private ) : ");
+                privacy = scan.nextInt();
+                scan.nextLine();
+            }while(privacy != 0 || privacy != 1);
+        }catch (InputMismatchException e){
+            System.out.println("Wrong input!");
+            sleep(1000);
+            main_menu();
+        }
 
         pepstmt = connection.prepareStatement("INSERT INTO public.\"Playlists\"(" +
                 "playlist_id, email, titulo, privacidade, musics_m)" +
@@ -316,7 +341,7 @@ public class Main {
         pepstmt.execute();
         pepstmt.close();
 
-        System.out.println("New playlist "+playlist_name+" createad succesfully.");
+        System.out.println("New playlist "+playlist_name+" created successfully.");
         sleep(2000);
         main_menu();
 
@@ -356,11 +381,18 @@ public class Main {
         }
 
         System.out.printf("\nWhich playlist would you like to delete?\n");
-        do {
-            System.out.printf("-> ");
-            playlist = scan.nextLine();
-            choice = Integer.parseInt(playlist);
-        }while(choice < 0 || choice > lista.size());
+
+        try{
+            do {
+                System.out.printf("-> ");
+                playlist = scan.nextLine();
+                choice = Integer.parseInt(playlist);
+            }while(choice < 0 || choice > lista.size());
+        }catch (NumberFormatException e){
+            System.out.println("Wrong input!");
+            sleep(1000);
+            main_menu();
+        }
 
         play_id = lista.get(choice-1).getPlaylist_id();
 
@@ -533,7 +565,7 @@ public class Main {
 
     public static void searchMusic(String titleSearch) throws Exception {
 
-        int select;
+        int select = 0;
         Music music;
         String op;
         ArrayList<Music> musicList = new ArrayList<>();
@@ -552,10 +584,17 @@ public class Main {
             for(int i = 0; i<musicList.size(); i++) {
                 System.out.println("Music [" + (i+1) + "] : " + musicList.get(i).getTitle() + " by "+musicList.get(i).getArtist());
             }
-            do {
-                System.out.print("\nPick a song: ");
-                select = scan.nextInt();
-            }while(select <= 0 && select > musicList.size());
+            try{
+                do {
+                    System.out.print("\nPick a song: ");
+                    select = scan.nextInt();
+                }while(select <= 0 || select > musicList.size());
+            }catch (InputMismatchException e){
+                System.out.println("Wrong input!");
+                sleep(2000);
+                main_menu();
+            }
+            
             scan.nextLine();
             select -= 1;
             clearConsole();
@@ -636,7 +675,7 @@ public class Main {
 
     public static void searchAlbum(String albumSearch) throws Exception {
 
-        int select;
+        int select = 0;
         String op;
         Album album;
         String art;
@@ -676,10 +715,17 @@ public class Main {
             for(int i = 0; i<albumList.size(); i++) {
                 System.out.println("Album [" + (i+1) + "] : " + albumList.get(i).getTitle() + " by "+albumList.get(i).artist);
             }
-            do {
-                System.out.printf("\nPick an album: ");
-                select = scan.nextInt();
-            }while(select <= 0 && select > albumList.size());
+            try{
+                do {
+                    System.out.printf("\nPick an album: ");
+                    select = scan.nextInt();
+                }while(select <= 0 || select > albumList.size());
+            }catch (InputMismatchException e){
+                System.out.println("Wrong input!");
+                sleep(1000);
+                main_menu();
+            }
+
             select -= 1;
             scan.nextLine();
             System.out.println("\n----ALBUM INFORMATION---- "+"\n");
@@ -754,7 +800,7 @@ public class Main {
     }
 
     public static void searchArtist(String artistSearch) throws Exception {
-        int select;
+        int select = 0;
         Artist artist;
         String band = "";
         ArrayList<Artist> artistList = new ArrayList<>();
@@ -786,8 +832,17 @@ public class Main {
             for(int i = 0; i<artistList.size(); i++) {
                 System.out.println("Artist [" + (i+1) + "] : " + artistList.get(i).getArtistic_name());
             }
-            System.out.print("\nPick an artist: ");
-            select = scan.nextInt();
+            try{
+                do{
+                    System.out.print("\nPick an artist: ");
+                    select = scan.nextInt();
+                }while(select <= 0 || select > artistList.size());
+            }catch (InputMismatchException e){
+                System.out.println("Wrong input!");
+                sleep(1000);
+                main_menu();
+            }
+
             select -= 1;
             scan.nextLine();
             System.out.println("\n----ARTIST INFORMATION----\n ");
@@ -937,11 +992,18 @@ public class Main {
             System.out.println("Playlist ["+(i+1)+"]: "+lista.get(i).getTitulo());
         }
 
-        do{
-            System.out.printf("\nPlaylist of choice: ");
-            option = scan.nextLine();
-            op = Integer.parseInt(option);
-        }while(op < 0 || op > lista.size());
+        try{
+            do{
+                System.out.printf("\nPlaylist of choice: ");
+                option = scan.nextLine();
+                op = Integer.parseInt(option);
+            }while(op < 0 || op > lista.size());
+        }catch (NumberFormatException e){
+            System.out.println("Wrong input!");
+            sleep(1000);
+            main_menu();
+        }
+
 
         System.out.println();
         if(op == 0){
@@ -952,11 +1014,20 @@ public class Main {
             for(i = 0; i < musics.size(); i++){
                 System.out.println("Music ["+(i+1)+"]: "+musics.get(i).getTitle()+" by "+musics.get(i).getArtist());
             }
-            do{
-                System.out.printf("\nMusic of choice: ");
-                option = scan.nextLine();
-                mp = Integer.parseInt(option);
-            }while(mp < 0 || mp > musics.size());
+
+            try{
+                do{
+                    System.out.printf("\nMusic of choice: ");
+                    option = scan.nextLine();
+                    mp = Integer.parseInt(option);
+                }while(mp < 0 || mp > musics.size());
+            }catch (NumberFormatException e){
+                System.out.println("Wrong input!");
+                sleep(1000);
+                main_menu();
+            }
+
+
             if(mp == 0){
                 main_menu();
             }else{
@@ -990,9 +1061,9 @@ public class Main {
         int i = 0;
         int j = 0;
         String op;
-        String mp;
-        int opi;
-        int mpi;
+        String mp = null;
+        int opi = 0;
+        int mpi = 0;
         int check = 0;
         ArrayList<Playlist> playlists = get_playlists(3);
         ArrayList<Music> musics = new ArrayList<>();
@@ -1029,11 +1100,19 @@ public class Main {
             sleep(2000);
             main_menu();
         }else{
-            do {
-                System.out.printf("\nSelect a music: ");
-                mp = scan.nextLine();
-                mpi = Integer.parseInt(mp);
-            }while(mpi < 0 || mpi > musics.size());
+            
+            try{
+                do {
+                    System.out.printf("\nSelect a music: ");
+                    mp = scan.nextLine();
+                    mpi = Integer.parseInt(mp);
+                }while(mpi < 0 || mpi > musics.size());
+            }catch (NumberFormatException e){
+                System.out.println("Wrong input!");
+                sleep(1000);
+                main_menu();
+            }
+            
 
             if(mpi != 0){
                 clearConsole();
@@ -1057,13 +1136,18 @@ public class Main {
                         System.out.println("No musics");
                     }
                 }
-
-                do {
-                    System.out.printf("\nSelect a playlist: ");
-                    op = scan.nextLine();
-                    opi = Integer.parseInt(mp);
-                }while(opi < 0 || opi > playlists.size());
-
+                try{
+                    do {
+                        System.out.printf("\nSelect a playlist: ");
+                        op = scan.nextLine();
+                        opi = Integer.parseInt(op);
+                    }while(opi < 0 || opi > playlists.size());
+                }catch (NumberFormatException e){
+                    System.out.println("Wrong input!");
+                    sleep(1000);
+                    main_menu();
+                }
+                
                 set = stmt.executeQuery("SELECT COUNT(*) FROM \"Playlists_Musics\"" +
                         " WHERE music_id = "+musics.get(mpi-1).getMusic_id()+"" +
                         " AND playlist_id = "+playlists.get(opi-1).getPlaylist_id()+";");
@@ -1257,7 +1341,8 @@ public class Main {
         Scanner scan = new Scanner(System.in);
 
         ArrayList<String> users =  new ArrayList<>();
-
+        clearConsole();
+        System.out.println("----GIVE PERMISSIONS----\n");
         if(user.getEditor() == 1){
 
             System.out.println("Which user do you want to provide editor permission?");
@@ -1271,10 +1356,17 @@ public class Main {
                 }
             }
 
-            do{
-                System.out.printf("User number: ");
-                position = scan.nextInt();
-            }while(position > users.size() && position > 0);
+            try{
+                do{
+                    System.out.printf("User number: ");
+                    position = scan.nextInt();
+                }while(position > users.size() || position <= 0);
+            }catch (InputMismatchException e){
+                System.out.println("Wrong input!");
+                sleep(1000);
+                main_menu();
+            }
+
 
             username = users.get(position-1);
             update_permits(username);
@@ -1292,7 +1384,7 @@ public class Main {
 
         int music_id;
         String title;
-        int duration;
+        int duration = 0;
         String launch_date;
         int views = 0;
         String lyrics;
@@ -1308,8 +1400,15 @@ public class Main {
             System.out.println("Music ID: "+music_id);
             System.out.printf("Title: ");
             title = scan.nextLine();
-            System.out.printf("Duration: ");
-            duration = scan.nextInt();
+            try{
+                System.out.printf("Duration: ");
+                duration = scan.nextInt();
+            }catch (NumberFormatException e){
+                System.out.println("Wrong input!");
+                sleep(1000);
+                main_menu();
+            }
+            
             scan.nextLine();
             System.out.printf("Launch Date: ");
             launch_date = scan.nextLine();
@@ -1354,7 +1453,7 @@ public class Main {
     public static void insert_artist() throws Exception {
 
         String artistic_name, nome, origin, biography, concertos;
-        int active_years;
+        int active_years = 0;
         int lines = 0;
         ResultSet set;
         String g;
@@ -1370,8 +1469,14 @@ public class Main {
             nome = scan.nextLine();
             System.out.printf("Origin: ");
             origin = scan.nextLine();
-            System.out.printf("Years active: ");
-            active_years = scan.nextInt();
+            try{
+                System.out.printf("Years active: ");
+                active_years = scan.nextInt();
+            }catch (NumberFormatException e){
+                System.out.println("Wrong input!");
+                sleep(1000);
+                main_menu();
+            }
             scan.nextLine();
             System.out.printf("Short biography: ");
             biography = scan.nextLine();
@@ -1433,9 +1538,9 @@ public class Main {
 
         int album_id;
         String title;
-        int duration;
+        int duration = 0;
         String launch_date;
-        int tack_number;
+        int tack_number = 0;
         String artist;
         PreparedStatement pepstmt;
         clearConsole();
@@ -1447,28 +1552,47 @@ public class Main {
             System.out.println("Album ID: "+album_id);
             System.out.printf("Title: ");
             title = scan.nextLine();
-            System.out.printf("Duration: ");
-            duration = scan.nextInt();
+            try{
+                System.out.printf("Duration: ");
+                duration = scan.nextInt();
+            }catch (NumberFormatException e){
+                System.out.println("Wrong input!");
+                sleep(1000);
+                main_menu();
+            }
             scan.nextLine();
             System.out.printf("Launch Date: ");
             launch_date = scan.nextLine();
-            System.out.printf("Number of tracks: ");
-            tack_number = scan.nextInt();
+            try{
+                System.out.printf("Number of tracks: ");
+                tack_number = scan.nextInt();
+            }catch (NumberFormatException e){
+                System.out.println("Wrong input!");
+                sleep(1000);
+                main_menu();
+            }
             scan.nextLine();
             System.out.printf("Artist / Band: ");
             artist = scan.nextLine();
 
-            pepstmt = connection.prepareStatement("INSERT INTO \"Albums\"("+
-                    "album_id, title, duration, launch_date, track_number, artistic_name)" +
-                    "VALUES (?, ?, ?, ?, ?, ?);");
-            pepstmt.setInt(1,album_id);
-            pepstmt.setString(2,title);
-            pepstmt.setInt(3,duration);
-            pepstmt.setString(4,launch_date);
-            pepstmt.setInt(5,tack_number);
-            pepstmt.setString(6,artist);
-            pepstmt.execute();
-            pepstmt.close();
+            try{
+                pepstmt = connection.prepareStatement("INSERT INTO \"Albums\"("+
+                        "album_id, title, duration, launch_date, track_number, artistic_name)" +
+                        "VALUES (?, ?, ?, ?, ?, ?);");
+                pepstmt.setInt(1,album_id);
+                pepstmt.setString(2,title);
+                pepstmt.setInt(3,duration);
+                pepstmt.setString(4,launch_date);
+                pepstmt.setInt(5,tack_number);
+                pepstmt.setString(6,artist);
+                pepstmt.execute();
+                pepstmt.close();
+            }catch (PSQLException e){
+                System.out.println("Missing Information!");
+                sleep(1000);
+                main_menu();
+            }
+            
 
             System.out.println("Album insert successful.");
 
@@ -1568,7 +1692,7 @@ public class Main {
     public static void associate_composer(int id, String table, String id_type) throws Exception {
 
         String op = "";
-        int ind;
+        int ind = 0;
         int lines = 0;
         ResultSet set;
         ArrayList<Artist> artists = get_artists();
@@ -1584,11 +1708,18 @@ public class Main {
         }
 
         do{
-            do {
-                System.out.printf("\nChoose Composer:");
-                op = scan.nextLine();
-                ind = Integer.parseInt(op);
-            }while(ind < 0 && ind > artists.size());
+            try{
+                do {
+                    System.out.printf("\nChoose Composer:");
+                    op = scan.nextLine();
+                    ind = Integer.parseInt(op);
+                }while(ind < -1 || ind > artists.size());
+            }catch (NumberFormatException e){
+                System.out.println("Wrong input!");
+                sleep(1000);
+                main_menu();
+            }
+
 
             if(ind > 0 && ind <= artists.size() ){
 
@@ -1639,7 +1770,7 @@ public class Main {
                 System.out.printf("\nChoose Label:");
                 op = scan.nextLine();
                 ind = Integer.parseInt(op);
-            }while(ind < 0 && ind > labels.size());
+            }while(ind < -1 || ind > labels.size());
 
             if(ind > 0 && ind <= labels.size()){
                 set = stmt.executeQuery("SELECT COUNT(*) FROM \""+table+"\" WHERE " + id_type + " = " + id + " AND label = '" + labels.get(ind - 1).getLabel_name() + "';");
@@ -1669,25 +1800,38 @@ public class Main {
     public static void associate_genre(int id, String table, String id_type) throws Exception {
 
         String op = "";
-        int ind;
+        int ind = 0;
         int lines = 0;
         ResultSet set;
         ArrayList<Genre> genres = get_genres();
         PreparedStatement pepstmt;
         clearConsole();
         System.out.println("-----ASSOCIATE GENRE-----\n");
-        System.out.println("\n ** Select 0 to go back to main menu **\n");
+        System.out.println("\n ** Select 0 to go back to main menu **");
+        System.out.println("** Select -1 to skip this association **\n");
 
         for(int i = 0; i < genres.size(); i++){
             System.out.println("Genre ["+(i+1)+"] : "+genres.get(i).getGenre());
         }
 
         do{
-            do {
-                System.out.printf("\nChoose Genre:");
-                op = scan.nextLine();
-                ind = Integer.parseInt(op);
-            }while(ind < 0 && ind > genres.size());
+            try{
+
+            }catch (NumberFormatException e){
+
+            }
+            try{
+                do {
+                    System.out.printf("\nChoose Genre:");
+                    op = scan.nextLine();
+                    ind = Integer.parseInt(op);
+                }while(ind < -1 || ind > genres.size());
+            }catch (NumberFormatException e){
+                System.out.println("Wrong input!");
+                sleep(1000);
+                main_menu();
+            }
+
 
             if(ind > 0 && ind <= genres.size()){
 
@@ -1719,8 +1863,8 @@ public class Main {
         ArrayList<Album> albums = get_albums();
         ArrayList<Music> music = get_musics();
         String ap, mp;
-        int apid;
-        int mpid;
+        int apid = 0;
+        int mpid = 0;
         int lines=0;
         ResultSet set;
         ResultSet res;
@@ -1746,24 +1890,36 @@ public class Main {
         for(int i = 0; i < albums.size(); i++){
             System.out.println("Album ["+(i+1)+"] : "+albums.get(i).getTitle() +" by "+albums.get(i).artist);
         }
-        do{
-            System.out.printf("\nSelect album to associate: ");
-            ap = scan.nextLine();
-            apid = Integer.parseInt(ap) - 1;
-        }
-        while(apid < 0 || apid >= albums.size());
 
+        try{
+            do{
+                System.out.printf("\nSelect album to associate: ");
+                ap = scan.nextLine();
+                apid = Integer.parseInt(ap) - 1;
+            }
+            while(apid < 0 || apid >= albums.size());
+        }catch (NumberFormatException e){
+            System.out.println("Wrong input!");
+            sleep(1000);
+            main_menu();
+        }
 
         System.out.println("\n");
         for(int i = 0; i < music.size(); i++){
             System.out.println("Music ["+(i+1)+"] : "+music.get(i).getTitle() +" by "+music.get(i).getArtist());
         }
-        do {
-            System.out.printf("\nSelect Music to associate: ");
-            mp = scan.nextLine();
-            mpid = Integer.parseInt(mp) - 1;
+        try{
+            do {
+                System.out.printf("\nSelect Music to associate: ");
+                mp = scan.nextLine();
+                mpid = Integer.parseInt(mp) - 1;
+            }while(mpid < 0 || mpid >= music.size());
+
+        }catch (NumberFormatException e){
+            System.out.println("Wrong input!");
+            sleep(1000);
+            main_menu();
         }
-        while(mpid < 0 || mpid >= music.size());
 
         set = stmt.executeQuery("SELECT COUNT(*)\n" +
                 "      FROM \"Albums_Music\"\n" +
@@ -1792,18 +1948,24 @@ public class Main {
     public static void add_critic(int id, String table, String id_type) throws Exception {
 
         int critic_id;
-        int pontuation;
+        int pontuation = 1;
         String critic;
         PreparedStatement pepstmt;
         clearConsole();
         System.out.println("----ADD CRITIC----\n");
         critic_id = get_id(table,"critic_id");
         System.out.println("Critic number "+critic_id);
-        do{
-            System.out.println("Give a pontuation between 1 and 10: ");
-            pontuation = scan.nextInt();
-            scan.nextLine();
-        }while(pontuation < 1 || pontuation > 10);
+
+        try{
+            do{
+                System.out.println("Give a pontuation between 1 and 10: ");
+                pontuation = scan.nextInt();
+                scan.nextLine();
+            }while(pontuation < 1 || pontuation > 10);
+        }catch (InputMismatchException e){
+            main_menu();
+        }
+
         System.out.printf("Write a critic, be nice: ");
         critic = scan.nextLine();
 
